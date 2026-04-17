@@ -3,7 +3,7 @@
 <head>
 <script>
 // Apps Script Web App inject — doGet tarafından string replace ile doldurulur
-var __WEB_APP_URL__ = 'https://script.google.com/macros/s/AKfycbzARvS1kmNSvOOG3j8ZZ4QRFTp6f7F1TEm3sXG3XxkkSXHAkGo6DShREh6D9NTKYmRV/exec';
+var __WEB_APP_URL__ = 'https://script.google.com/macros/s/AKfycbxeqxynkcN_kM2zvDJHL5rBAZ3-qn13FQUPPtPzLXLIPYJma6z6MD9uh-qYaIAWQ8Yf/exec';
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0, user-scalable=yes">
@@ -2307,7 +2307,9 @@ globalThis.renderKatBar = function(v) {
   const hasMaddeData = Object.keys(maddeToplamlar).length > 0;
 
   const html = ks.map(([k, n]) => {
-    const maddeArr = KAT_MADDELER[k] || [];
+    // Kategori madde listesini cache'den al, yoksa boş dizi
+    const _katCache = (_MADDE_CACHE_DASH && _MADDE_CACHE_DASH.katHaritasi) ? _MADDE_CACHE_DASH.katHaritasi : {};
+    const maddeArr = _katCache[k] || [];
     const pct      = Math.round(n / km * 100);
     const grad     = KAT_RENKLER[k] || '#64748b';
     const label    = KAT_ADLAR[k] || k;
@@ -2549,27 +2551,37 @@ globalThis.sheettenSenkronize = async function() {
 
   try {
     var data = null;
-    // Önce fetch dene; başarısız veya JSON parse edilemezse JSONP'ye geç
-    // (GitHub Pages gibi farklı origin'den erişimde fetch CORS/redirect sorunu yaşayabilir)
+    var testUrl = buildUrl('getDenetimler');
+    console.log('🔗 Bağlantı URL:', testUrl);
+    status.textContent = '🔄 Bağlanıyor…';
+
     try {
-      var resp = await fetch(buildUrl('getDenetimler'), { method: 'GET', redirect: 'follow' });
+      var resp = await fetch(testUrl, { method: 'GET', redirect: 'follow' });
+      console.log('📡 Fetch yanıtı:', resp.status, resp.url);
       if (resp.ok) {
         var text = await resp.text();
-        try { data = JSON.parse(text); } catch(pe) {
-          // Yanıt HTML/boş geldi (redirect sonrası) — JSONP'ye geç
-          console.warn('Fetch yanıtı JSON değil, JSONP deneniyor.');
+        console.log('📄 Yanıt (ilk 200 karakter):', text.substring(0, 200));
+        try {
+          data = JSON.parse(text);
+          console.log('✅ JSON parse başarılı, status:', data.status, 'kayıt:', data.denetimler?.length);
+        } catch(pe) {
+          console.warn('⚠️ Fetch yanıtı JSON değil, JSONP deneniyor. Yanıt:', text.substring(0, 100));
+          status.textContent = '🔄 JSONP deneniyor…';
           data = await _jsonpFetch(buildUrl('getDenetimler'));
         }
       } else {
-        console.warn('Fetch HTTP ' + resp.status + ', JSONP deneniyor.');
+        console.warn('⚠️ Fetch HTTP ' + resp.status + ', JSONP deneniyor.');
+        status.textContent = '🔄 JSONP deneniyor…';
         data = await _jsonpFetch(buildUrl('getDenetimler'));
       }
     } catch(fetchErr) {
-      console.warn('Fetch başarısız, JSONP deneniyor:', fetchErr.message);
+      console.warn('⚠️ Fetch başarısız:', fetchErr.message, '→ JSONP deneniyor');
+      status.textContent = '🔄 JSONP deneniyor…';
       data = await _jsonpFetch(buildUrl('getDenetimler'));
     }
 
     if (!data) throw new Error('Veri alınamadı');
+    console.log('📦 Gelen veri:', JSON.stringify(data).substring(0, 300));
 
     if (data.status === 'OK' && Array.isArray(data.denetimler)) {
       DENETIMLER = data.denetimler.map(d => {
@@ -2623,10 +2635,12 @@ globalThis.sheettenSenkronize = async function() {
     }
   } catch(e) {
     status.className  = 'cfg-status err';
-    status.textContent = '❌ Bağlantı Hatası';
+    status.textContent = '❌ ' + e.message.substring(0, 40);
     document.getElementById('corsInfo').classList.add('show');
-    toast('Hata: ' + e.message, 't-err');
-    console.error('Senkronize hatası:', e);
+    toast('❌ ' + e.message, 't-err');
+    console.error('🔴 Senkronize hatası:', e.message);
+    console.error('   URL:', APPS_SCRIPT_URL);
+    console.error('   Tarayıcı konsolunda F12 → Console sekmesinde detayları görün');
   } finally {
     spin.classList.remove('show');
     syncBtn.disabled = false;
@@ -2865,10 +2879,17 @@ globalThis.maddelerYukle = async function() {
   if (_MADDE_CACHE_DASH) return _MADDE_CACHE_DASH;
   if (!APPS_SCRIPT_URL) return null;
   try {
-    const url  = APPS_SCRIPT_URL + (APPS_SCRIPT_URL.includes('?') ? '&' : '?') + 'action=getMaddeler&t=' + Date.now();
-    const resp = await fetch(url, { redirect: 'follow' });
-    const data = JSON.parse(await resp.text());
-    if (data.status !== 'OK' || !data.maddeler) return null;
+    const buildMaddeUrl = () =>
+      APPS_SCRIPT_URL + (APPS_SCRIPT_URL.includes('?') ? '&' : '?') + 'action=getMaddeler&t=' + Date.now();
+    let data = null;
+    try {
+      const resp = await fetch(buildMaddeUrl(), { method: 'GET', redirect: 'follow' });
+      if (resp.ok) {
+        const text = await resp.text();
+        try { data = JSON.parse(text); } catch(pe) { data = await _jsonpFetch(buildMaddeUrl()); }
+      } else { data = await _jsonpFetch(buildMaddeUrl()); }
+    } catch(fe) { data = await _jsonpFetch(buildMaddeUrl()); }
+    if (!data || data.status !== 'OK' || !data.maddeler) return null;
 
     const adlar      = {};
     const katHaritasi = {};
@@ -4560,12 +4581,21 @@ async function _myonYukle() {
   if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--mut)">⏳ Yükleniyor…</td></tr>';
 
   try {
-    const url  = APPS_SCRIPT_URL + (APPS_SCRIPT_URL.includes('?') ? '&' : '?') + 'action=getMaddeler&t=' + Date.now();
-    const resp = await fetch(url, { redirect: 'follow' });
-    const data = JSON.parse(await resp.text());
+    const buildUrl = (action) =>
+      APPS_SCRIPT_URL + (APPS_SCRIPT_URL.includes('?') ? '&' : '?') + 'action=' + action + '&t=' + Date.now();
 
-    if (data.status !== 'OK' || !data.maddeler) {
-      throw new Error(data.mesaj || 'Madde listesi alınamadı');
+    let data = null;
+    // Önce fetch dene, olmadı JSONP
+    try {
+      const resp = await fetch(buildUrl('getMaddeler'), { method: 'GET', redirect: 'follow' });
+      if (resp.ok) {
+        const text = await resp.text();
+        try { data = JSON.parse(text); } catch(pe) { data = await _jsonpFetch(buildUrl('getMaddeler')); }
+      } else { data = await _jsonpFetch(buildUrl('getMaddeler')); }
+    } catch(fe) { data = await _jsonpFetch(buildUrl('getMaddeler')); }
+
+    if (!data || data.status !== 'OK' || !data.maddeler) {
+      throw new Error(data?.mesaj || 'Madde listesi alınamadı');
     }
 
     _myonVeriler = data.maddeler;
