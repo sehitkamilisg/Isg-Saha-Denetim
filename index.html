@@ -3,7 +3,7 @@
 <head>
 <script>
 // Apps Script Web App inject — doGet tarafından string replace ile doldurulur
-var __WEB_APP_URL__ = 'https://script.google.com/macros/s/AKfycbwrELPUNOqcVS6-EG1yfGfslEHprulGt6EjUV4EGIEm5Ak5A-dAiZavvVi3ZknEMs0/exec';
+var __WEB_APP_URL__ = '%%WEB_APP_URL%%';
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0, user-scalable=yes">
@@ -846,6 +846,121 @@ body{font-family:Arial,sans-serif;background:var(--bg);color:var(--txt);min-heig
 }
 
 
+/* ─── MADDE YÖNETİMİ DRAWER ─── */
+.btn-madde-yon {
+  display:flex;align-items:center;gap:7px;
+  background:rgba(16,185,129,.1);
+  border:1px solid rgba(16,185,129,.3);
+  color:#10b981;font-weight:700;font-size:13px;
+  padding:9px 16px;border-radius:12px;border-width:1px;
+  cursor:pointer;font-family:Arial,sans-serif;
+  transition:all .2s;white-space:nowrap;
+}
+.btn-madde-yon:hover{background:rgba(16,185,129,.2);border-color:rgba(16,185,129,.5);}
+
+/* Madde tablosu */
+.myon-tablo{width:100%;border-collapse:collapse;font-size:12px;}
+.myon-tablo th{
+  background:#0d2b5e;color:#fff;padding:8px 10px;
+  font-size:10px;text-transform:uppercase;letter-spacing:.6px;
+  font-weight:700;text-align:left;position:sticky;top:0;z-index:1;
+}
+.myon-tablo th:first-child{width:50px;text-align:center;}
+.myon-tablo th:nth-child(2){width:60px;text-align:center;}
+.myon-tablo th:nth-child(3){width:70px;text-align:center;}
+.myon-tablo th:last-child{width:80px;text-align:center;}
+.myon-satir td{
+  padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.05);
+  vertical-align:middle;color:var(--mut2);
+}
+.myon-satir:hover td{background:rgba(255,255,255,.03);}
+.myon-satir.pasif td{opacity:.45;}
+.myon-satir td:first-child{text-align:center;font-weight:700;color:var(--mut);font-size:11px;}
+.myon-satir td:nth-child(2){text-align:center;}
+.myon-satir td:nth-child(3){color:var(--txt);font-weight:500;font-size:12px;}
+.myon-satir td:last-child{text-align:center;}
+
+/* Aktif badge */
+.myon-aktif-yes{background:rgba(16,185,129,.15);color:#10b981;
+  padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;}
+.myon-aktif-no {background:rgba(248,113,113,.12);color:#f87171;
+  padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;}
+.myon-kat-badge{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:22px;height:22px;border-radius:6px;
+  font-size:11px;font-weight:800;background:rgba(56,189,248,.15);color:var(--teal);
+}
+
+/* Düzenleme formu */
+.myon-edit-panel{
+  background:rgba(0,0,0,.3);border:1px solid var(--bdr);
+  border-radius:12px;padding:16px;margin:0 4px 10px;
+}
+.myon-edit-baslik{
+  font-size:13px;font-weight:800;color:var(--teal);
+  margin-bottom:14px;display:flex;align-items:center;gap:8px;
+}
+.myon-field{margin-bottom:10px;}
+.myon-lbl{font-size:10px;color:var(--mut);font-weight:700;
+  text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+.myon-input,.myon-textarea,.myon-select{
+  width:100%;padding:8px 11px;
+  background:rgba(0,0,0,.3);border:1px solid var(--bdr);
+  border-radius:8px;color:var(--txt);font-size:12px;
+  font-family:Arial,sans-serif;outline:none;transition:border .2s;
+}
+.myon-input:focus,.myon-textarea:focus,.myon-select:focus{border-color:var(--teal);}
+.myon-textarea{resize:vertical;min-height:70px;line-height:1.5;}
+.myon-select{cursor:pointer;}
+.myon-edit-btns{display:flex;gap:8px;margin-top:12px;}
+.myon-kaydet-btn{
+  flex:1;padding:9px;border-radius:9px;border:none;
+  background:linear-gradient(135deg,#10b981,#059669);
+  color:#fff;font-weight:700;font-size:13px;cursor:pointer;
+  font-family:Arial,sans-serif;transition:all .2s;
+}
+.myon-kaydet-btn:hover{filter:brightness(1.1);}
+.myon-iptal-btn{
+  padding:9px 18px;border-radius:9px;
+  border:1px solid var(--bdr);background:transparent;
+  color:var(--mut2);font-weight:700;font-size:13px;cursor:pointer;
+  font-family:Arial,sans-serif;
+}
+.myon-sil-btn{
+  padding:9px 14px;border-radius:9px;border:none;
+  background:rgba(248,113,113,.12);color:#f87171;
+  font-weight:700;font-size:12px;cursor:pointer;
+  font-family:Arial,sans-serif;transition:all .2s;
+}
+.myon-sil-btn:hover{background:rgba(248,113,113,.25);}
+
+/* Madde yönetimi arama */
+.myon-toolbar{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 20px 8px;border-bottom:1px solid var(--bdr);
+  flex-shrink:0;flex-wrap:wrap;
+}
+.myon-search{
+  flex:1;min-width:160px;padding:7px 12px;border-radius:9px;
+  border:1px solid var(--bdr);background:rgba(0,0,0,.3);
+  color:var(--txt);font-size:12px;font-family:Arial,sans-serif;outline:none;
+}
+.myon-search:focus{border-color:var(--teal);}
+.myon-kat-filter{
+  padding:6px 11px;border-radius:8px;border:1px solid var(--bdr);
+  background:rgba(0,0,0,.3);color:var(--txt);
+  font-size:12px;font-family:Arial,sans-serif;cursor:pointer;outline:none;
+}
+.myon-yeni-btn{
+  padding:7px 14px;border-radius:9px;border:none;
+  background:rgba(56,189,248,.12);color:var(--teal);
+  font-weight:700;font-size:12px;cursor:pointer;
+  font-family:Arial,sans-serif;white-space:nowrap;
+  border:1px solid rgba(56,189,248,.25);transition:all .2s;
+}
+.myon-yeni-btn:hover{background:rgba(56,189,248,.22);}
+.myon-sayac{font-size:11px;color:var(--mut);white-space:nowrap;}
+
 /* ─── ARŞİV MODAL ─── */
 .arsiv-modal-bg {
   display: none;
@@ -949,6 +1064,7 @@ html,body{overflow-x:hidden;-webkit-overflow-scrolling:touch}
       <button class="btn-pdf" id="btnPdfRapor" onclick="brifingRaporuOlustur()">
         <span class="pdf-spin" id="pdfSpin"></span>🖨️ PDF Rapor
       </button>
+      <button class="btn-madde-yon" onclick="maddeYonetimiAc()">⚙️ Madde Yönetimi</button>
       <button class="btn-new" onclick="formAc()">📋 Yeni Denetim Başlat</button>
     </div>
   </div>
@@ -1297,6 +1413,111 @@ html,body{overflow-x:hidden;-webkit-overflow-scrolling:touch}
   </div>
 </div>
 
+
+<!-- ═══ MADDE YÖNETİMİ DRAWER ═══ -->
+<div class="drawer-overlay" id="maddeYonDrawerBg" onclick="maddeYonetimiKapat(event)">
+  <div class="drawer-panel" style="max-height:92vh">
+    <div class="drawer-handle" onclick="document.getElementById('maddeYonDrawerBg').classList.remove('open')"></div>
+    <div class="drawer-head">
+      <div class="drawer-title">⚙️ Madde Yönetimi — MADDE_VERITABANI</div>
+      <button class="drawer-kapat" onclick="document.getElementById('maddeYonDrawerBg').classList.remove('open');document.body.style.overflow=''">✕</button>
+    </div>
+    <!-- Toolbar -->
+    <div class="myon-toolbar">
+      <input class="myon-search" id="myonArama" placeholder="🔍 Madde ara…" oninput="myonFiltrele()">
+      <select class="myon-kat-filter" id="myonKatFilter" onchange="myonFiltrele()">
+        <option value="">Tüm Kategoriler</option>
+        <option value="A">A – İSG Kayıt</option>
+        <option value="B">B – Acil Durumlar</option>
+        <option value="C">C – Risk Değ.</option>
+        <option value="D">D – İSG Kurulu</option>
+        <option value="E">E – Eğitimler</option>
+        <option value="F">F – Periy. Kontrol</option>
+        <option value="G">G – Yangın</option>
+        <option value="H">H – Elektrik</option>
+        <option value="I">I – Genel Ortam</option>
+      </select>
+      <select class="myon-kat-filter" id="myonAktifFilter" onchange="myonFiltrele()">
+        <option value="">Aktif + Pasif</option>
+        <option value="aktif">Yalnızca Aktif</option>
+        <option value="pasif">Yalnızca Pasif</option>
+      </select>
+      <span class="myon-sayac" id="myonSayac"></span>
+      <button class="myon-yeni-btn" onclick="myonYeniAc()">＋ Yeni Madde</button>
+    </div>
+    <!-- Yeni/Düzenleme formu (gizli başlar) -->
+    <div id="myonEditPanel" style="display:none;overflow-y:auto;flex-shrink:0;max-height:42vh;padding:0 4px;">
+      <div class="myon-edit-panel">
+        <div class="myon-edit-baslik"><span id="myonEditIkon">＋</span> <span id="myonEditBaslik">Yeni Madde</span></div>
+        <div style="display:grid;grid-template-columns:80px 80px 1fr;gap:10px;margin-bottom:10px;">
+          <div class="myon-field">
+            <div class="myon-lbl">Madde No</div>
+            <input class="myon-input" id="myonNo" type="number" min="1" max="999" placeholder="139">
+          </div>
+          <div class="myon-field">
+            <div class="myon-lbl">Kategori</div>
+            <select class="myon-select" id="myonKat">
+              <option value="A">A</option><option value="B">B</option>
+              <option value="C">C</option><option value="D">D</option>
+              <option value="E">E</option><option value="F">F</option>
+              <option value="G">G</option><option value="H">H</option>
+              <option value="I">I</option>
+            </select>
+          </div>
+          <div class="myon-field">
+            <div class="myon-lbl">Aktif</div>
+            <select class="myon-select" id="myonAktif">
+              <option value="Evet">✅ Evet (Aktif)</option>
+              <option value="Hayır">❌ Hayır (Pasif)</option>
+            </select>
+          </div>
+        </div>
+        <div class="myon-field">
+          <div class="myon-lbl">Madde Adı *</div>
+          <input class="myon-input" id="myonAd" placeholder="Kısa, net madde adı (form listesinde görünür)">
+        </div>
+        <div class="myon-field">
+          <div class="myon-lbl">Tehlike Tanımı</div>
+          <textarea class="myon-textarea" id="myonTehlike" placeholder="Bu maddenin karşılanmaması durumunda oluşan tehlike..."></textarea>
+        </div>
+        <div class="myon-field">
+          <div class="myon-lbl">Olası Risk</div>
+          <input class="myon-input" id="myonRisk" placeholder="Yaralanma, Ölüm, Para Cezası...">
+        </div>
+        <div class="myon-field">
+          <div class="myon-lbl">Yasal Dayanak (Yönetmelik)</div>
+          <textarea class="myon-textarea" id="myonMevzuat" placeholder="İlgili kanun/yönetmelik maddesi..." style="min-height:90px"></textarea>
+        </div>
+        <div class="myon-edit-btns">
+          <button class="myon-kaydet-btn" id="myonKaydetBtn" onclick="myonKaydet()">💾 Kaydet</button>
+          <button class="myon-sil-btn" id="myonSilBtn" onclick="myonSil()" style="display:none">🗑️ Sil</button>
+          <button class="myon-iptal-btn" onclick="myonEditKapat()">İptal</button>
+        </div>
+      </div>
+    </div>
+    <!-- Liste -->
+    <div class="drawer-body" id="myonListeBody" style="overflow-x:auto;">
+      <table class="myon-tablo">
+        <thead>
+          <tr>
+            <th>No</th><th>Kat.</th><th>Madde Adı</th>
+            <th>Durum</th><th>İşlem</th>
+          </tr>
+        </thead>
+        <tbody id="myonTbody"></tbody>
+      </table>
+      <div id="myonBosMsg" style="display:none;padding:24px;text-align:center;color:var(--mut);font-size:12px">
+        Sonuç bulunamadı
+      </div>
+    </div>
+    <div class="drawer-footer" style="justify-content:space-between;padding:8px 20px;">
+      <span id="myonFooterBilgi" style="font-size:11px;color:var(--mut2)"></span>
+      <button onclick="myonSheetteAc()" style="background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.25);color:var(--teal);padding:6px 14px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:Arial,sans-serif;">
+        📊 Sheets'te Aç
+      </button>
+    </div>
+  </div>
+</div>
 
 <!-- ═══ RİSK DRAWER ═══ -->
 <div class="drawer-overlay" id="riskDrawerBg" onclick="riskDrawerKapat(event)">
@@ -1649,92 +1870,9 @@ globalThis.cfgDurumGuncelle = function(bagli) {
 // ════════════════════════════════════════════════
 let DENETIMLER = [];
 
-// ── Madde haritası: her kategorinin hangi maddeleri kapsadığı ──
-const KAT_MADDELER = {
-  A: [1,2,3,4,5,6,7,8,9,10],
-  B: [11,12,13,14,15,16,17,18,19,20,21],
-  C: [22,23,24,25,26],
-  D: [27,28,29,30,31],
-  E: [32,33,34,35,36,37,38,39,40,41],
-  F: [42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57],
-  G: [58,59,60,61,62,63,64,65,66,67,68],
-  H: [69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98],
-  I: [99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,
-      117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,
-      133,134,135,136,137,138]
-};
+// ── Madde haritası: her kategorinin hangi maddeleri kapsadığı ──;
 
-// ── Madde adları (dashboard akordiyonu için) ──
-const MADDE_ADLARI_DASH = {
-  1:"İSG Dosyalama Klasör Sistemi",2:"Yıllık çalışma planı",3:"Tespit ve Öneri Defteri Kullanımı",
-  4:"İSG Duyuru ve Bilg.Panosu",5:"Ramak Kala Kayıtlarının Tutulması",6:"İş Kazalarının Bildirimi",
-  7:"Çalışanların İsg Çalışmaları Hakkında Bilgilendirilmesi",8:"Yıllık Değerlendirme Raporu",
-  9:"İSG Talimatların İlgili çalışanlara tebliği",10:"SGK Sicil numarasında kayıtlı çalışanların Özlük dosyası",
-  11:"Acil Durum Eylem Planı",12:"Acil Durum Ekipleri oluşturma ve güncelleme",13:"Kat Kaçış Tahliye Planı",
-  14:"Acil durum tatbikatları yapılması ve MEBBİS'e girişi",15:"Acil Toplanma Alanının Belirlenmesi",
-  16:"Acil çıkış yönlendirme levhaları",17:"Yangın ve Acil çıkış kapılarının standartlara uygunluğu",
-  18:"Acil çıkış yollarında Acil durum aydınlatması",19:"Yangın Merdiveni Durumu",
-  20:"Ana Bina Girişi Acil Durum Butonu",21:"Acil çıkış yolları ve kapı önlerine çıkışı engelleyecek malzeme",
-  22:"Risk Değerlendirme Ekibi Görevlendirme",23:"Çalışan Temsilcisi Görevlendirme",
-  24:"Risk Değerlendirme Kontrol listeleri",25:"Risk Değerlendirmesi Analizi MEBBİS girişi ve Güncellenmesi",
-  26:"Risk Değerlendirme Düzeltici Faaliyet (DF) Raporu",27:"İSG Kurulu Görevlendirme Formu",
-  28:"İSG Kurul Toplantı Tutanağı",29:"İSG Kurulu Karar Defteri",30:"İsg Kurul Protokolü",
-  31:"Kurum İSG İç Yönerge Hazırlanmış",32:"Tüm Çalışanların Temel İSG Eğitimleri",
-  33:"Risk Değerlendirme Ekibi Eğitimi",34:"İSG Kurul Üyeleri Eğitimi",35:"Çalışanlara KKD Eğitimi",
-  36:"Acil Durum Ekipleri Eğitimi",37:"Çırak/Stajyer Öğrencilerin İSG Eğitimleri",
-  38:"Çalışan Temsilcileri Eğitimi",39:"Yeni Çalışanın İşe başlama ve Oryantasyon Eğitimleri",
-  40:"Gıda ve Temizlik Çalışmalarında Hijyen Eğitimi",41:"İlk Yardımcı Eğitimi",
-  42:"Yangın tüpleri periyodik kontrol ve bakımı",43:"Asansörün periyodik kontrolü ve bakımı",
-  44:"Basınçlı kapların periyodik kontrolü ve bakımı",45:"Elektrik Tesisatı ve Ana Pano Periyodik Kontrolü",
-  46:"Paratonerin Periyodik Kontrol ve Bakımı",47:"Topraklama Tesisatı Periyodik Kontrolü",
-  48:"Jeneratörün periyodik kontrolü ve bakımı",49:"Klima Periyodik Kontrolü ve Bakımı",
-  50:"Baca temizliği/kontrolü",51:"İçme suyu analizleri",52:"Su Deposu temizliği",
-  53:"Kalorifer Kazanı/Kombi Periyodik Kontrolü",54:"Kazan Dairesi Hidrofor Periyodik Kontrolleri",
-  55:"Makine-Tezgah Periyodik Bakımları ve Bakım Kartları",56:"Çalışanların İşe Giriş ve Periyodik Sağlık Muayeneleri",
-  57:"Elektrikli İş Ekipmanlarının Periyodik Kontrolü",58:"Yangın algılama alarm butonları ve duman sensörü",
-  59:"Yangın dolapları mevzuata uygun",60:"Yangın tüpü sayısı yeterli yeri ve seviyesi uygun",
-  61:"Yangın Önleme ve Söndürme talimatları görülebilir yerde",62:"Pansiyonlu Okullarda yağmurlama sistemi",
-  63:"Sulu Söndürme Sistemleri için ayrılmış uygun su deposu",64:"Kantin içerisinde uygun yangın söndürme cihazı",
-  65:"Kazan dairesinde uygun yangın söndürücü sistem",66:"Kazan dairesinde gaz dedektörleri çalışıyor",
-  67:"Elektrik Odası uygun yangın söndürme cihazı",68:"Binaların taban alanı 5000m² üstü hidrant sistemi",
-  69:"Ana elektrik dağıtım odası uygun",70:"Elektrik panolarında kaçak akım rölesi ve uyarı levhası",
-  71:"Ana Elektrik panolarının önünde izole paspas",72:"Elektrik panosundaki sigorta şartellerinin işaretlenmesi",
-  73:"Trafo binası güvenliği uygun",74:"Elektrik Tesisat Kat Planı Elektrik Panosunun yanına asılmış",
-  75:"Jeneratör acil durum elemanlarına bağlantı yapılmış",76:"Elektrik Atölye Uygun Taban İzolasyonu",
-  77:"Makine Gövde Topraklama Hattı",78:"Prizler Çocuk Korumalı",
-  79:"Elektrik Kabloların kapalı kanal içerisinden geçirilmesi",
-  80:"Okul çatılarının yanıcı-parlayıcı malzemelerden arındırılması",
-  81:"Çatı saç ve kiremitlerinin sağlamlaştırılması",82:"Çatı aralarına elektrik tesisatı çekilmemesi",
-  83:"Çatı araları biriken kuş gübrelerinin temizlenmesi",84:"Kazan dairesi depo olarak kullanılmıyor",
-  85:"Kazan dairesi acil butonu çalışıyor",86:"Kalorifer dairesi işletme talimatı görünür alana asılmış",
-  87:"Kazan Dairesi Sorumlu Personelin Ateşleyici Belgesi",88:"Kazan dairesi acil çıkış kapısı uygun",
-  89:"Kazan Dairesinde Havalandırma ve Aydınlatma yeterli",90:"Kazan Dairesinde kablo tesisatları exproof malzemelerden",
-  91:"Kazan dairesinde boru hatları işaretlenmiş",92:"Bahçe giriş kapısı kilit sistemi ve makaralar uygun",
-  93:"Bahçe içinde güvenli park alanı oluşturulmuş",94:"İhata duvarları tehlike yaratmayacak şekilde düzenlenmiş",
-  95:"Bahçedeki ağaçlara karşı tedbir alınmış",96:"Engelli rampaları mevzuata uygun",
-  97:"Voleybol-basketbol direkleri devrilmeye karşı güvenli",98:"Rögar Kapağı ve Fosseptik güvenlik önlemi alınmış",
-  99:"Çalışanlar uygun KKD'lerini kullanıyor",100:"Kurum Sağlık ve Güvenlik İşaretleri Yönetmeliği'ne uygun",
-  101:"Tehlikeli kimyasal madde etiketleme/kilitleme yapılmış",102:"Türkçe malzeme güvenlik bilgi formları",
-  103:"Çöp kovaları hijyenik ve kapaklı",104:"Tuvaletlerde Güncel Günlük temizlik çizelgesi",
-  105:"Temizlik malzemeleri kilitli yerde tutuluyor",106:"Tuvalet lavabo taşları devrilmelere karşı sağlamlaştırılmış",
-  107:"Tuvaletlerin fiziki ortamları uygun ve hijyenik",108:"Makine Acil Durdurma Butonu/Sensör",
-  109:"Makine Korucu muhafaza",110:"Atölyede Genel tertip düzen uygun",111:"Atölyelerde Uygun KKD kullanılıyor",
-  112:"Basınçlı Kaplar ve tüpler tecrit edilmiş",113:"Rampaların eğimi zemini ve korkulukları uygun",
-  114:"Basamak bulunan merdivende trabzan",115:"Merdivenlerdeki korkuluk yüksekliği ve aralıkları uygun",
-  116:"İlkyardım dolabı malzemesi yeterli ve uygun yere konmuş",117:"Tüm bina ve eklentilerinde dolaplar emniyetli sabit",
-  118:"Dışa açılan kapılar için çarpmaya karşı dış alan işaretli",119:"Pencerelerden düşme için önlem alınmış",
-  120:"Sınıf ve diğer alanlarda sivri uçlu malzemeler izole edilmiş",121:"Depo istifleme kurallarına uyulmuş",
-  122:"Zeminde bozulma-yer seviyesi farkı için önlem alınmış",123:"Merdiven boşlukları güvenli",
-  124:"Merdivenlerde kaydırmaz bant",125:"İşyerinin tüm alanlarında gerekli havalandırma şartları",
-  126:"İşyerinin tüm alanlarında gerekli termal konfor şartları",127:"İşyerinin tüm alanlarında gerekli aydınlatma şartları",
-  128:"İşyerinde Engelli Çalışanlar için düzenlemeler yapılmış",129:"Mutfak ve Kantin çalışanların hijyen eğitimi",
-  130:"Mutfak ve Kantin çalışanların temizlik ve KKD kullanımı",131:"Kantin Denetim Komisyonu Tarafından Denetimlenir",
-  132:"Mutfakta çapraz bulaş riskine karşı gerekli önlemler",133:"Mutfakta gıda maddelerinin saklanması için alanlar uygun",
-  134:"Yemek numuneleri mevzuat doğrultusunda uygun şekilde saklanıyor",
-  135:"Gaz algılama sensörü ve otomatik yangın söndürme sistemi",136:"Gıda üretilen alanlar fiziki olarak ayrılmış",
-  137:"Spor salonunda duvar-kolon-direklerin yumuşak malzeme ile kaplanması",
-  138:"Toplantı-spor salonu-yemekhane gibi alanlarda acil çıkış kapısı"
-};
+// ── Madde adları (dashboard akordiyonu için) ──;
 
 const KAT_RENKLER = {
   "I":"linear-gradient(90deg,#f87171,#dc2626)","F":"linear-gradient(90deg,#fb923c,#ea580c)",
@@ -2179,7 +2317,7 @@ globalThis.renderKatBar = function(v) {
     let detailRows = '';
     detailRows = maddeArr.map(no => {
       const m      = maddeToplamlar[no] || {evet:0,hayir:0,eksik:0,ger:0};
-      const ad     = MADDE_ADLARI_DASH[no] || ('Madde ' + no);
+      const ad     = maddeAdiGetir(no);
       const adKisa = ad.length > 55 ? ad.substring(0,55)+'\u2026' : ad;
       const uyg    = m.hayir + m.eksik;
       const renkSt = uyg > 0 ? ' style="background:rgba(220,38,38,.06)"' : '';
@@ -2470,6 +2608,16 @@ globalThis.sheettenSenkronize = async function() {
       status.textContent = '✅ ' + DENETIMLER.length + ' kayıt';
       toast('✅ ' + DENETIMLER.length + ' denetim yüklendi', 't-ok');
       document.getElementById('corsInfo').classList.remove('show');
+      // Madde cache'ini temizle ve yeniden yükle — form güncel kalsın
+      maddeCacheSifirla();
+      maddelerYukle().then(function() {
+        // Form adımlarını yenile (madde listesi değişmiş olabilir)
+        ['1','2','3','4','5','6','7','8'].forEach(function(s) {
+          const c = document.getElementById('step' + s);
+          if (c) c.innerHTML = '';
+        });
+        buildForms();
+      });
     } else {
       throw new Error(data.mesaj || 'Bilinmeyen hata');
     }
@@ -2691,174 +2839,158 @@ globalThis.okulSecildi = function() {
 
 // ════════════════════════════════════════════════
 // 138 MADDE (Form)
-// ════════════════════════════════════════════════
-const MADDELER = {
-  A:{title:"A – İSG ÇALIŞMALARINI KAYIT ALTINA ALMA VE BİLDİRİM",items:[
-    {no:1,ad:"İSG Dosyalama Klasör Sistemi"},{no:2,ad:"Yıllık çalışma planı"},
-    {no:3,ad:"Tespit ve Öneri Defteri Kullanımı"},{no:4,ad:"İSG Duyuru ve Bilg.Panosu"},
-    {no:5,ad:"Ramak Kala Kayıtlarının Tutulması"},{no:6,ad:"İş Kazalarının Bildirimi"},
-    {no:7,ad:"Çalışanların İsg Çalışmaları Hakkında Bilgilendirilmesi"},
-    {no:8,ad:"Yıllık Değerlendirme Raporu"},
-    {no:9,ad:"İSG Talimatların İlgili çalışanlara tebliği"},
-    {no:10,ad:"SGK Sicil numarasında kayıtlı çalışanların Özlük dosyası"}
-  ]},
-  B:{title:"B – ACİL DURUMLAR",items:[
-    {no:11,ad:"Acil Durum Eylem Planı"},{no:12,ad:"Acil Durum Ekipleri oluşturma ve güncelleme"},
-    {no:13,ad:"Kat Kaçış Tahliye Planı"},{no:14,ad:"Acil durum tatbikatları yapılması ve MEBBIS'e girişi"},
-    {no:15,ad:"Acil Toplanma Alanının Belirlenmesi"},{no:16,ad:"Acil çıkış yönlendirme levhaları"},
-    {no:17,ad:"Yangın ve Acil çıkış kapılarının standartlara uygunluğu"},
-    {no:18,ad:"Acil çıkış yollarında Acil durum aydınlatması"},{no:19,ad:"Yangın Merdiveni Durumu"},
-    {no:20,ad:"Ana Bina Girişi Acil Durum Butonu"},
-    {no:21,ad:"Acil çıkış yolları ve kapı önlerine çıkışı engelleyecek malzeme"}
-  ]},
-  C:{title:"C – RİSK DEĞERLENDİRMESİ",items:[
-    {no:22,ad:"Risk Değerlendirme Ekibi Görevlendirme"},
-    {no:23,ad:"Çalışan Temsilcisi Görevlendirme"},
-    {no:24,ad:"Risk Değerlendirme Kontrol listeleri"},
-    {no:25,ad:"Risk Değerlendirmesi Analizi, MEBBİS'e girişi ve Güncellenmesi"},
-    {no:26,ad:"Risk Değerlendirme Düzeltici Faaliyet (DF) Raporu Düzenleme"}
-]},
-  D:{title:"D – İSG KURULU",items:[
-    {no:27,ad:"İSG Kurulu Görevlendirme Formu"},
-    {no:28,ad:"İSG Kurul Toplantı Tutanağı"},
-    {no:29,ad:"İSG Kurulu Karar Defteri"},
-    {no:30,ad:"İsg Kurul Protokolü"},
-    {no:31,ad:"Kurum İSG İç Yönerge Hazırlanmış"}
-]},
-  E:{title:"E – EĞİTİMLER",items:[
-    {no:32,ad:"Tüm Çalışanların Temel İSG Eğitimleri"},{no:33,ad:"Risk Değerlendirme Ekibi Eğitimi"},
-    {no:34,ad:"İSG Kurul Üyeleri Eğitimi"},{no:35,ad:"Çalışanlara KKD Eğitimi"},
-    {no:36,ad:"Acil Durum Ekipleri Eğitimi"},{no:37,ad:"Çırak/Stajyer Öğrencilerin İSG Eğitimleri"},
-    {no:38,ad:"Çalışan Temsilcileri Eğitimi"},
-    {no:39,ad:"Yeni Çalışanın İşe başlama ve Oryantasyon Eğitimleri"},
-    {no:40,ad:"Gıda ve Temizlik Çalışmalarında Hijyen Eğitimi"},{no:41,ad:"İlk Yardımcı Eğitimi"}
-  ]},
-  F:{title:"F – PERİYODİK KONTROL ve BAKIM",items:[
-    {no:42,ad:"Yangın tüpleri periyodik kontrol ve bakımı"},{no:43,ad:"Asansörün periyodik kontrolü ve bakımı"},
-    {no:44,ad:"Basınçlı kapların periyodik kontrolü ve bakımı"},
-    {no:45,ad:"Elektrik Tesisatı ve Ana Pano Periyodik Kontrolü ve Bakımı"},
-    {no:46,ad:"Paratonerin Periyodik Kontrol ve Bakımı"},
-    {no:47,ad:"Topraklama Tesisatı Periyodik Kontrolü ve Bakımı"},
-    {no:48,ad:"Jeneratörün periyodik kontrolü ve bakımı"},{no:49,ad:"Klima Periyodik Kontrolü ve Bakımı"},
-    {no:50,ad:"Baca temizliği/kontrolü"},{no:51,ad:"İçme suyu analizleri"},{no:52,ad:"Su Deposu temizliği"},
-    {no:53,ad:"Kalorifer Kazanı/Kombi Periyodik Kontrolü ve Bakımı"},
-    {no:54,ad:"Kazan Dairesi Hidrofor Periyodik Kontrolleri"},
-    {no:55,ad:"Makine-Tezgah Periyodik Bakımları ve Bakım Kartları"},
-    {no:56,ad:"Çalışanların İşe Giriş ve Periyodik Sağlık Muayeneleri"},
-    {no:57,ad:"Elektrikli İş Ekipmanlarının Periyodik Kontrolü ve Bakımı"}
-  ]},
-  G:{title:"G – YANGIN ÖNLEMLERİ",items:[
-    {no:58,ad:"Yangın algılama, alarm butonları ve duman sensörü çalışır durumda"},
-    {no:59,ad:"Yangın dolapları mevzuata uygun"},
-    {no:60,ad:"Yangın tüpü sayısı yeterli, yeri ve seviyesi uygun"},
-    {no:61,ad:"Yangın Önleme ve Söndürme talimatları görülebilir yerde bulunuyor"},
-    {no:62,ad:"Pansiyonlu Okullarda yağmurlama sistemi mevcut"},
-    {no:63,ad:"Sulu Söndürme Sistemleri için ayrılmış uygun su deposu var"},
-    {no:64,ad:"Kantin içerisinde uygun yangın söndürme cihazı var"},
-    {no:65,ad:"Kazan dairesinde uygun yangın söndürücü sistem / tertibat var"},
-    {no:66,ad:"Kazan dairesinde gaz dedektörleri uygun yerlere asılmış ve çalışıyor"},
-    {no:67,ad:"Elektrik Odası uygun yangın söndürme cihazı var"},
-    {no:68,ad:"Binaların taban alanları 5000 m²'yi geçiyor ise hidrant sistemi var"}
-  ]},
-  H:{title:"H – ELEKTRİK ÖNLEMLERİ",items:[
-    {no:69,ad:"Ana elektrik dağıtım odası uygun"},
-    {no:70,ad:"Elektrik panolarında kaçak akım rölesi ve uyarı levhası var"},
-    {no:71,ad:"Ana Elektrik panolarının önünde izole paspas konmuş"},
-    {no:72,ad:"Elektrik panosundaki sigorta şartellerinin işaretlenmesi var"},
-    {no:73,ad:"Trafo binası güvenliği uygun"},
-    {no:74,ad:"Elektrik Tesisat Kat Planı Elektrik Panosunun yanına asılmış"},
-    {no:75,ad:"Jeneratör acil durum elemanlarına bağlantı yapılmış ve yeri Uygun"},
-    {no:76,ad:"Elektrik Atölye Uygun Taban İzolasyonu var"},{no:77,ad:"Makine Gövde Topraklama Hattı var"},
-    {no:78,ad:"Prizler Çocuk Korumalı"},{no:79,ad:"Elektrik Kabloların kapalı kanal içerisinden geçirilmesi"}
-  ]},
-  I:{title:"I – GENEL ORTAM GÖZETİMİ",items:[
-    {no:80,ad:"Okul çatılarının yanıcı, parlayıcı, patlayıcı malzemelerden arındırılması"},
-    {no:81,ad:"Çatı saç ve kiremitlerinin sağlamlaştırılması"},{no:82,ad:"Çatı aralarına elektrik tesisatı çekilmemesi"},
-    {no:83,ad:"Çatı araları biriken kuş gübrelerinin temizlenmesi"},
-    {no:84,ad:"Kazan dairesi depo olarak kullanılmıyor"},{no:85,ad:"Kazan dairesi acil butonu çalışıyor"},
-    {no:86,ad:"Kalorifer dairesi işletme talimatı görünür bir alana asılmış"},
-    {no:87,ad:"Kazan Dairesi Sorumlu Personelin Ateşleyici Belgesi var"},
-    {no:88,ad:"Kazan dairesi acil çıkış kapısı uygun"},{no:89,ad:"Kazan Dairesinde Havalandırma ve Aydınlatma yeterli"},
-    {no:90,ad:"Kazan Dairesinde kablo tesisatları exproof malzemelerden yapılmış"},
-    {no:91,ad:"Kazan dairesinde boru hatları işaretlenmiş"},
-    {no:92,ad:"Bahçe giriş kapısı kilit sistemi ve makaralar uygun"},
-    {no:93,ad:"Bahçe içinde güvenli park alanı oluşturulmuş"},
-    {no:94,ad:"İhata duvarları tehlike yaratmayacak şekilde düzenlenmiş"},
-    {no:95,ad:"Bahçedeki ağaçlara karşı tedbir alınmış"},{no:96,ad:"Engelli rampaları mevzuata uygun"},
-    {no:97,ad:"Voleybol-basketbol direkleri devrilmeye karşı güvenli"},
-    {no:98,ad:"Rögar Kapağı ve Fosseptik güvenlik önlemi alınmış"},{no:99,ad:"Çalışanlar uygun KKD'lerini kullanıyor"},
-    {no:100,ad:"Kurum Sağlık ve Güvenlik İşaretleri Yönetmeliği'ne uygun"},
-    {no:101,ad:"Tehlikeli kimyasal madde etiketleme/kilitleme yapılmış"},
-    {no:102,ad:"Türkçe malzeme güvenlik bilgi formları var"},
-    {no:103,ad:"Çöp kovaları hijyenik ve kapaklı"},{no:104,ad:"Tuvaletlerde Güncel Günlük temizlik çizelgesi var"},
-    {no:105,ad:"Temizlik malzemeleri kilitli yerde tutuluyor"},
-    {no:106,ad:"Tuvalet lavabo taşları devrilmelere karşı sağlamlaştırılmış"},
-    {no:107,ad:"Tuvaletlerin fiziki ortamları uygun ve hijyenik"},
-    {no:108,ad:"Makine Acil Durdurma Butonu/Sensör var"},{no:109,ad:"Makine Korucu muhafaza var"},
-    {no:110,ad:"Atölyede Genel tertip düzen uygun"},{no:111,ad:"Atölyelerde Uygun KKD kullanılıyor"},
-    {no:112,ad:"Basınçlı Kaplar ve tüpler tecrit edilmiş"},
-    {no:113,ad:"Rampaların eğimi, zemini ve korkulukları uygun"},{no:114,ad:"Basamak bulunan merdivende trabzan var"},
-    {no:115,ad:"Merdivenlerdeki korkuluk yüksekliği ve aralıkları uygun"},
-    {no:116,ad:"İlkyardım dolabı malzemesi yeterli ve uygun yere konmuş"},
-    {no:117,ad:"Tüm bina ve eklentilerinde dolaplar emniyetli şekilde sabit"},
-    {no:118,ad:"Dışa açılan kapılar için çarpmaya karşı dış alan işaretli"},
-    {no:119,ad:"Pencerelerden düşme için önlem alınmış"},
-    {no:120,ad:"Sınıf ve diğer alanlarda sivri uçlu malzemeler izole edilmiş"},
-    {no:121,ad:"Depo istifleme kurallarına uyulmuş"},{no:122,ad:"Zeminde bozulma-yer seviyesi farkı için önlem alınmış"},
-    {no:123,ad:"Merdiven boşlukları güvenli"},{no:124,ad:"Merdivenlerde kaydırmaz bant var"},
-    {no:125,ad:"İşyerinin tüm alanlarında gerekli havalandırma şartları sağlanmış"},
-    {no:126,ad:"İşyerinin tüm alanlarında gerekli termal konfor şartları sağlanmış"},
-    {no:127,ad:"İşyerinin tüm alanlarında gerekli aydınlatma şartları sağlanmış"},
-    {no:128,ad:"İşyerinde Engelli Çalışanlar için düzenlemeler yapılmış"},
-    {no:129,ad:"Mutfak ve Kantin çalışanların hijyen eğitimi"},
-    {no:130,ad:"Mutfak ve Kantin çalışanların temizlik ve KKD kullanımı uygun"},
-    {no:131,ad:"Kantin Denetim Komisyonu Tarafından Denetimlenir"},
-    {no:132,ad:"Mutfakta çapraz bulaş riskine karşı gerekli önlemler alınmış"},
-    {no:133,ad:"Mutfakta gıda maddelerinin saklanması için ayrılmış alanlar uygun"},
-    {no:134,ad:"Yemek numuneleri mevzuat doğrultusunda uygun şekilde saklanıyor"},
-    {no:135,ad:"Gaz algılama sensörü ve otomatik yangın söndürme sistemi var"},
-    {no:136,ad:"Gıda üretilen alanlar fiziki olarak ayrılmış"},
-    {no:137,ad:"Spor salonunda duvar-kolon-direklerin yumuşak malzeme ile kaplanması"},
-    {no:138,ad:"Toplantı-spor salonu-yemekhane gibi alanlarda acil çıkış kapısı var"}
-  ]}
-};
+// ════════════════════════════════════════════════;
 
 // ════════════════════════════════════════════════
 // FORM OLUŞTUR
 // ════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════
+// DİNAMİK MADDE SİSTEMİ — Sheets'teki MADDE_VERITABANI'ndan yüklenir
+// ════════════════════════════════════════════════════════════════
+let   _MADDE_CACHE_DASH = null;   // {adlar:{}, katHaritasi:{}, maddeler:[]}
+const KAT_BASLIKLAR = {
+  A: 'A – İSG ÇALIŞMALARINI KAYIT ALTINA ALMA VE BİLDİRİM',
+  B: 'B – ACİL DURUMLAR',
+  C: 'C – RİSK DEĞERLENDİRMESİ',
+  D: 'D – İŞ SAĞLIĞI VE GÜVENLİĞİ KURULU',
+  E: 'E – EĞİTİMLER',
+  F: 'F – PERİYODİK KONTROL VE BAKIM',
+  G: 'G – YANGIN ÖNLEMLERİ',
+  H: 'H – ELEKTRİK ÖNLEMLERİ VE GENEL ORTAM GÖZETİMİ',
+  I: 'I – GENEL ORTAM GÖZETİMİ (devam)'
+};
+
+// Sheets'ten maddeler yükle → form ve analizler için kullan
+globalThis.maddelerYukle = async function() {
+  if (_MADDE_CACHE_DASH) return _MADDE_CACHE_DASH;
+  if (!APPS_SCRIPT_URL) return null;
+  try {
+    const url  = APPS_SCRIPT_URL + (APPS_SCRIPT_URL.includes('?') ? '&' : '?') + 'action=getMaddeler&t=' + Date.now();
+    const resp = await fetch(url, { redirect: 'follow' });
+    const data = JSON.parse(await resp.text());
+    if (data.status !== 'OK' || !data.maddeler) return null;
+
+    const adlar      = {};
+    const katHaritasi = {};
+    const maddeler   = data.maddeler;
+
+    maddeler.forEach(function(m) {
+      adlar[m.no]         = m.ad;
+      adlar[String(m.no)] = m.ad;
+      if (m.kat) {
+        if (!katHaritasi[m.kat]) katHaritasi[m.kat] = [];
+        katHaritasi[m.kat].push(m.no);
+      }
+    });
+
+    _MADDE_CACHE_DASH = { adlar, katHaritasi, maddeler };
+    return _MADDE_CACHE_DASH;
+  } catch(e) {
+    console.warn('Madde yükleme hatası:', e);
+    return null;
+  }
+};
+
+// Madde adını döndür (cache'den veya fallback)
+globalThis.maddeAdiGetir = function(no) {
+  if (_MADDE_CACHE_DASH) return _MADDE_CACHE_DASH.adlar[no] || ('Madde ' + no);
+  return 'Madde ' + no;
+};
+
+// Madde cache'ini temizle (senkronizasyonda)
+globalThis.maddeCacheSifirla = function() {
+  _MADDE_CACHE_DASH = null;
+};
+
 const KAT_STEP  = {A:1,B:2,C:3,D:3,E:4,F:5,G:6,H:7,I:8};
 const KAT_ICO   = {A:'ic-blue',B:'ic-red',C:'ic-yellow',D:'ic-blue',E:'ic-green',F:'ic-blue',G:'ic-red',H:'ic-yellow',I:'ic-green'};
 const KAT_EMOJI = {A:'📁',B:'🚨',C:'⚖️',D:'👥',E:'🎓',F:'🔧',G:'🔥',H:'⚡',I:'🏢'};
 const answers   = {};
 
-globalThis.buildForms = function() {
-  Object.entries(MADDELER).forEach(([kat, data]) => {
+// buildForms: Sheets'ten yüklenen maddelerle formu oluşturur
+// Önce maddelerYukle() ile cache'i doldurur, sonra render eder
+globalThis.buildForms = async function() {
+  // Maddeler yüklü değilse önce yükle
+  if (!_MADDE_CACHE_DASH) {
+    await maddelerYukle();
+  }
+
+  // Yüklenemezse eski fallback davranışı (URL yoksa sayfa ilk açılışta)
+  if (!_MADDE_CACHE_DASH) {
+    _buildFormsFallback();
+    return;
+  }
+
+  // Kat → adımı gruplama
+  const katGruplari = {};
+  _MADDE_CACHE_DASH.maddeler.forEach(function(m) {
+    const kat = m.kat || 'A';
+    if (!katGruplari[kat]) katGruplari[kat] = [];
+    katGruplari[kat].push(m);
+  });
+
+  Object.entries(katGruplari).forEach(function([kat, maddeler]) {
     const stepId    = KAT_STEP[kat];
     const container = document.getElementById('step' + stepId);
     if (!container) return;
+
+    const baslik = KAT_BASLIKLAR[kat] || (kat + ' kategorisi');
+
+    // Başlık kartı (bir kez)
     if (!container.querySelector('.scard-hdr')) {
       const hdr = document.createElement('div');
       hdr.className = 'scard-hdr';
-      hdr.innerHTML = '<div class="scard-ico ' + (KAT_ICO[kat]) + '">' + (KAT_EMOJI[kat]) + '</div>\n        <div><div class="scard-title">' + (data.title) + '</div><div class="scard-sub">' + (data.items.length) + ' madde</div></div>';
+      hdr.innerHTML =
+        '<div class="scard-ico ' + (KAT_ICO[kat] || 'ic-blue') + '">' + (KAT_EMOJI[kat] || '📋') + '</div>' +
+        '<div><div class="scard-title">' + baslik + '</div>' +
+        '<div class="scard-sub">' + maddeler.length + ' madde</div></div>';
       container.appendChild(hdr);
     }
+
+    // Tablo başlığı
     const thead = document.createElement('div');
     thead.className = 'kat-header';
-    thead.innerHTML = '<div>' + (data.title) + '</div>\n      <div style="text-align:center">✅ Evet/Var</div>\n      <div style="text-align:center">❌ Hayır/Yok</div>\n      <div style="text-align:center">⚠️ Eksik</div>\n      <div style="text-align:center">— Grkli.Değil</div>';
+    thead.innerHTML =
+      '<div>' + baslik + '</div>' +
+      '<div style="text-align:center">✅ Evet/Var</div>' +
+      '<div style="text-align:center">❌ Hayır/Yok</div>' +
+      '<div style="text-align:center">⚠️ Eksik</div>' +
+      '<div style="text-align:center">— Grkli.Değil</div>';
     container.appendChild(thead);
-    data.items.forEach(item => {
+
+    // Madde satırları
+    maddeler.forEach(function(m) {
       const row = document.createElement('div');
       row.className  = 'madde-row';
-      row.dataset.no = item.no;
-      var d0 = document.createElement('div');
-      d0.innerHTML = '<span class="madde-no">' + item.no + '.</span> <span class="madde-ad">' + item.ad + '</span>';
-      var d1 = document.createElement('div'); d1.className = 'mcheck evet';     d1.textContent = '\u2705 Evet';      d1.setAttribute('onclick', 'secim(this,' + item.no + ',"Evet/Var")');
-      var d2 = document.createElement('div'); d2.className = 'mcheck hayir';    d2.textContent = '\u274C Hay\u0131r'; d2.setAttribute('onclick', 'secim(this,' + item.no + ',"Hay\u0131r/Yok")');
-      var d3 = document.createElement('div'); d3.className = 'mcheck eksik';    d3.textContent = '\u26A0 Eksik';     d3.setAttribute('onclick', 'secim(this,' + item.no + ',"Eksik")');
-      var d4 = document.createElement('div'); d4.className = 'mcheck gerekmez'; d4.textContent = '\u2014 G.De\u011Fil'; d4.setAttribute('onclick', 'secim(this,' + item.no + ',"Gerekli De\u011Fil")');
+      row.dataset.no = m.no;
+      const d0 = document.createElement('div');
+      d0.innerHTML =
+        '<span class="madde-no">' + m.no + '.</span> ' +
+        '<span class="madde-ad">' + (m.ad || ('Madde ' + m.no)) + '</span>';
+      const d1 = document.createElement('div'); d1.className = 'mcheck evet';
+        d1.textContent = '✅ Evet'; d1.setAttribute('onclick', 'secim(this,' + m.no + ',"Evet/Var")');
+      const d2 = document.createElement('div'); d2.className = 'mcheck hayir';
+        d2.textContent = '❌ Hayır'; d2.setAttribute('onclick', 'secim(this,' + m.no + ',"Hayır/Yok")');
+      const d3 = document.createElement('div'); d3.className = 'mcheck eksik';
+        d3.textContent = '⚠️ Eksik'; d3.setAttribute('onclick', 'secim(this,' + m.no + ',"Eksik")');
+      const d4 = document.createElement('div'); d4.className = 'mcheck gerekmez';
+        d4.textContent = '— G.Değil'; d4.setAttribute('onclick', 'secim(this,' + m.no + ',"Gerekli Değil")');
       row.appendChild(d0); row.appendChild(d1); row.appendChild(d2); row.appendChild(d3); row.appendChild(d4);
       container.appendChild(row);
     });
+  });
+};
+
+// Fallback: URL yokken veya bağlantı öncesi boş adım göster
+function _buildFormsFallback() {
+  ['1','2','3','4','5','6','7','8'].forEach(function(s) {
+    const c = document.getElementById('step' + s);
+    if (c && !c.querySelector('.scard-hdr')) {
+      const div = document.createElement('div');
+      div.style.cssText = 'padding:20px;text-align:center;color:var(--mut);font-size:13px';
+      div.innerHTML = "⚡ Maddeler yükleniyor...<br><small>Apps Script URL'sini girin ve Senkronize Et'e basın</small>";
+      c.appendChild(div);
+    }
   });
 }
 
@@ -3618,7 +3750,7 @@ globalThis.ozetAnalizRender = function(v) {
   if (sisEl) {
     sisEl.innerHTML = topMaddeler.length > 0
       ? topMaddeler.map(([no, cnt]) => {
-          const ad    = MADDE_ADLARI_DASH[no] || ('Madde ' + no);
+          const ad    = maddeAdiGetir(no);
           const adKisa = ad.length > 45 ? ad.substring(0, 45) + '…' : ad;
           const barPct = Math.round(cnt / maxHata * 100);
           return '<div class="sis-row">\n            <div class="sis-no">' + (no) + '.</div>\n            <div class="sis-ad">' + (adKisa) + '</div>\n            <div class="sis-bar-wrap"><div class="sis-bar-fill" style="width:' + (barPct) + '%"></div></div>\n            <div class="sis-cnt">' + (cnt) + '</div>\n          </div>';
@@ -4392,6 +4524,267 @@ globalThis._brifingHtmlOlustur = function(v) {
 
 </body>
 </html>`;
+};
+
+// ════════════════════════════════════════════════════════════════
+// MADDE YÖNETİMİ DRAWER — v6.2
+// Sheets'teki MADDE_VERITABANI sayfasını Dashboard'dan yönet
+// ════════════════════════════════════════════════════════════════
+let _myonVeriler    = [];   // Sheets'ten gelen ham madde listesi
+let _myonFiltreli   = [];   // Filtrelenmiş liste
+let _myonDuzenlenen = null; // Düzenlenen madde no (null = yeni)
+
+// ─ Drawer aç ─
+globalThis.maddeYonetimiAc = async function() {
+  if (!APPS_SCRIPT_URL) {
+    toast("Önce Apps Script URL'sini girin ve Senkronize Et'e basın", 't-warn');
+    return;
+  }
+  document.getElementById('maddeYonDrawerBg').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  myonEditKapat();
+  await _myonYukle();
+};
+
+globalThis.maddeYonetimiKapat = function(e) {
+  if (!e || e.target === document.getElementById('maddeYonDrawerBg')) {
+    document.getElementById('maddeYonDrawerBg').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+};
+
+// ─ Sheets'ten madde listesini yükle ─
+async function _myonYukle() {
+  const tbody  = document.getElementById('myonTbody');
+  const sayacEl = document.getElementById('myonSayac');
+  if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--mut)">⏳ Yükleniyor…</td></tr>';
+
+  try {
+    const url  = APPS_SCRIPT_URL + (APPS_SCRIPT_URL.includes('?') ? '&' : '?') + 'action=getMaddeler&t=' + Date.now();
+    const resp = await fetch(url, { redirect: 'follow' });
+    const data = JSON.parse(await resp.text());
+
+    if (data.status !== 'OK' || !data.maddeler) {
+      throw new Error(data.mesaj || 'Madde listesi alınamadı');
+    }
+
+    _myonVeriler = data.maddeler;
+    if (sayacEl) sayacEl.textContent = _myonVeriler.length + ' madde';
+    myonFiltrele();
+
+    const bilgi = document.getElementById('myonFooterBilgi');
+    if (bilgi) bilgi.textContent = 'Toplam: ' + _myonVeriler.length + ' madde · Aktif: ' +
+      _myonVeriler.filter(function(m){ return m.aktif !== false; }).length;
+
+  } catch(e) {
+    if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:#f87171">❌ ' + e.message + '</td></tr>';
+    toast('Madde yükleme hatası: ' + e.message, 't-err');
+  }
+}
+
+// ─ Filtrele ve listele ─
+globalThis.myonFiltrele = function() {
+  const arama  = (document.getElementById('myonArama')?.value   || '').toLowerCase().trim();
+  const kat    = (document.getElementById('myonKatFilter')?.value || '');
+  const aktif  = (document.getElementById('myonAktifFilter')?.value || '');
+
+  _myonFiltreli = _myonVeriler.filter(function(m) {
+    if (arama && !(m.ad||'').toLowerCase().includes(arama) &&
+                 !(m.tehlike||'').toLowerCase().includes(arama) &&
+                 !String(m.no).includes(arama)) return false;
+    if (kat   && m.kat !== kat) return false;
+    if (aktif === 'aktif' && m.aktif === false) return false;
+    if (aktif === 'pasif' && m.aktif !== false) return false;
+    return true;
+  });
+
+  _myonRender();
+  const sayacEl = document.getElementById('myonSayac');
+  if (sayacEl) sayacEl.textContent = _myonFiltreli.length + ' / ' + _myonVeriler.length;
+};
+
+// ─ Tabloyu render et ─
+function _myonRender() {
+  const tbody = document.getElementById('myonTbody');
+  const bosMsg = document.getElementById('myonBosMsg');
+  if (!tbody) return;
+
+  if (_myonFiltreli.length === 0) {
+    tbody.innerHTML = '';
+    if (bosMsg) bosMsg.style.display = 'block';
+    return;
+  }
+  if (bosMsg) bosMsg.style.display = 'none';
+
+  tbody.innerHTML = _myonFiltreli.map(function(m) {
+    const aktifBadge = m.aktif !== false
+      ? '<span class="myon-aktif-yes">Aktif</span>'
+      : '<span class="myon-aktif-no">Pasif</span>';
+    const satirClass = m.aktif === false ? 'myon-satir pasif' : 'myon-satir';
+    const ad = (m.ad || '').length > 55 ? (m.ad||'').substring(0,55)+'…' : (m.ad||'–');
+
+    return '<tr class="' + satirClass + '">' +
+      '<td>' + m.no + '</td>' +
+      '<td><span class="myon-kat-badge">' + (m.kat||'?') + '</span></td>' +
+      '<td title="' + (m.ad||'') + '">' + ad + '</td>' +
+      '<td>' + aktifBadge + '</td>' +
+      '<td><button onclick="myonDuzenleAc(' + m.no + ')" ' +
+        'style="background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.2);' +
+        'color:var(--teal);padding:3px 10px;border-radius:6px;font-size:11px;' +
+        'font-weight:700;cursor:pointer;font-family:Arial,sans-serif;">✏️ Düzenle</button></td>' +
+    '</tr>';
+  }).join('');
+}
+
+// ─ Yeni madde formu ─
+globalThis.myonYeniAc = function() {
+  _myonDuzenlenen = null;
+  document.getElementById('myonEditBaslik').textContent  = 'Yeni Madde Ekle';
+  document.getElementById('myonEditIkon').textContent    = '＋';
+  document.getElementById('myonNo').value       = (_myonVeriler.length > 0 ? Math.max(..._myonVeriler.map(function(m){return m.no;})) + 1 : 139);
+  document.getElementById('myonKat').value      = 'A';
+  document.getElementById('myonAktif').value    = 'Evet';
+  document.getElementById('myonAd').value       = '';
+  document.getElementById('myonTehlike').value  = '';
+  document.getElementById('myonRisk').value     = '';
+  document.getElementById('myonMevzuat').value  = '';
+  document.getElementById('myonSilBtn').style.display  = 'none';
+  document.getElementById('myonKaydetBtn').textContent = '💾 Kaydet';
+  document.getElementById('myonEditPanel').style.display = 'block';
+  document.getElementById('myonAd').focus();
+  // Paneli görünür alana kaydır
+  setTimeout(function() {
+    document.getElementById('myonEditPanel').scrollIntoView({behavior:'smooth', block:'nearest'});
+  }, 80);
+};
+
+// ─ Düzenleme formu ─
+globalThis.myonDuzenleAc = function(no) {
+  const m = _myonVeriler.find(function(x){ return x.no === no; });
+  if (!m) return;
+  _myonDuzenlenen = no;
+  document.getElementById('myonEditBaslik').textContent  = 'Madde Düzenle · #' + no;
+  document.getElementById('myonEditIkon').textContent    = '✏️';
+  document.getElementById('myonNo').value       = m.no;
+  document.getElementById('myonKat').value      = m.kat   || 'A';
+  document.getElementById('myonAktif').value    = m.aktif === false ? 'Hayır' : 'Evet';
+  document.getElementById('myonAd').value       = m.ad       || '';
+  document.getElementById('myonTehlike').value  = m.tehlike  || '';
+  document.getElementById('myonRisk').value     = m.risk     || '';
+  document.getElementById('myonMevzuat').value  = m.yonetmelik || '';
+  document.getElementById('myonSilBtn').style.display  = 'inline-flex';
+  document.getElementById('myonKaydetBtn').textContent = '💾 Güncelle';
+  document.getElementById('myonEditPanel').style.display = 'block';
+  setTimeout(function() {
+    document.getElementById('myonEditPanel').scrollIntoView({behavior:'smooth', block:'nearest'});
+  }, 80);
+};
+
+globalThis.myonEditKapat = function() {
+  document.getElementById('myonEditPanel').style.display = 'none';
+  _myonDuzenlenen = null;
+};
+
+// ─ Kaydet (yeni veya güncelle) ─
+globalThis.myonKaydet = async function() {
+  const no      = parseInt(document.getElementById('myonNo').value);
+  const kat     = document.getElementById('myonKat').value;
+  const aktif   = document.getElementById('myonAktif').value;
+  const ad      = document.getElementById('myonAd').value.trim();
+  const tehlike = document.getElementById('myonTehlike').value.trim();
+  const risk    = document.getElementById('myonRisk').value.trim();
+  const mevzuat = document.getElementById('myonMevzuat').value.trim();
+
+  if (!no || !ad) {
+    toast('Madde No ve Madde Adı zorunludur', 't-warn');
+    return;
+  }
+  // Yeni madde: aynı numara var mı?
+  if (!_myonDuzenlenen && _myonVeriler.find(function(m){ return m.no === no; })) {
+    toast('Bu numara zaten kullanımda: #' + no, 't-warn');
+    return;
+  }
+
+  const btn = document.getElementById('myonKaydetBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Kaydediliyor…';
+
+  try {
+    const payload = {
+      action: _myonDuzenlenen ? 'maddeGuncelle' : 'maddeEkle',
+      madde: { no, kat, aktif, ad, tehlike, risk, yonetmelik: mevzuat,
+               eskiNo: _myonDuzenlenen || null }
+    };
+    const resp = await fetch(APPS_SCRIPT_URL, {
+      method:   'POST',
+      redirect: 'follow',
+      headers:  { 'Content-Type': 'text/plain;charset=utf-8' },
+      body:     JSON.stringify(payload)
+    });
+    const data = JSON.parse(await resp.text());
+
+    if (data.status === 'OK') {
+      toast(_myonDuzenlenen ? '✅ Madde güncellendi: #' + no : '✅ Yeni madde eklendi: #' + no, 't-ok');
+      myonEditKapat();
+      // Dashboard form önbelleğini temizle
+      maddeCacheSifirla();
+      // Listeyi yenile
+      await _myonYukle();
+    } else {
+      throw new Error(data.mesaj || 'Kayıt hatası');
+    }
+  } catch(e) {
+    toast('❌ ' + e.message, 't-err');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = _myonDuzenlenen ? '💾 Güncelle' : '💾 Kaydet';
+  }
+};
+
+// ─ Sil (aktifi kaldır — gerçekte Pasif yapar) ─
+globalThis.myonSil = async function() {
+  if (!_myonDuzenlenen) return;
+  const m = _myonVeriler.find(function(x){ return x.no === _myonDuzenlenen; });
+  if (!m) return;
+
+  // Onay
+  if (!confirm('Madde #' + m.no + ' "' + (m.ad||'') + '" pasif yapılacak.\n\nDevam edilsin mi?')) return;
+
+  const btn = document.getElementById('myonSilBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳';
+
+  try {
+    const resp = await fetch(APPS_SCRIPT_URL, {
+      method:   'POST',
+      redirect: 'follow',
+      headers:  { 'Content-Type': 'text/plain;charset=utf-8' },
+      body:     JSON.stringify({ action: 'maddePasifYap', no: m.no })
+    });
+    const data = JSON.parse(await resp.text());
+    if (data.status === 'OK') {
+      toast('✅ Madde #' + m.no + ' pasif yapıldı', 't-ok');
+      myonEditKapat();
+      maddeCacheSifirla();
+      await _myonYukle();
+    } else {
+      throw new Error(data.mesaj || 'İşlem hatası');
+    }
+  } catch(e) {
+    toast('❌ ' + e.message, 't-err');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🗑️ Sil';
+  }
+};
+
+// ─ Sheets'te aç ─
+globalThis.myonSheetteAc = function() {
+  const url = 'https://docs.google.com/spreadsheets/d/' + 
+    (APPS_SCRIPT_URL.match(/\/d\/([a-zA-Z0-9_-]+)/) || ['',''])[1] ||
+    'https://sheets.google.com';
+  // Genellikle spreadsheet ID URL'de olmaz — sadece bilgi ver
+  toast("Sheets'te MADDE_VERITABANI sayfasını açın ve düzenleyin", '');
 };
 
 // ════════════════════════════════════════════════
