@@ -3,7 +3,7 @@
 <head>
 <script>
 // Apps Script Web App inject — doGet tarafından string replace ile doldurulur
-var __WEB_APP_URL__ = 'https://script.google.com/macros/s/AKfycbzgz2scgokbtLrfwaFiEIBnBY43dFtz0rWHfwAf41tsq0SU-PYT0mq06NDkOfUdvQ/exec';
+var __WEB_APP_URL__ = '%%WEB_APP_URL%%';
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0, user-scalable=yes">
@@ -2886,9 +2886,24 @@ globalThis.maddelerYukle = async function() {
       const resp = await fetch(buildMaddeUrl(), { method: 'GET', redirect: 'follow' });
       if (resp.ok) {
         const text = await resp.text();
-        try { data = JSON.parse(text); } catch(pe) { data = await _jsonpFetch(buildMaddeUrl()); }
-      } else { data = await _jsonpFetch(buildMaddeUrl()); }
-    } catch(fe) { data = await _jsonpFetch(buildMaddeUrl()); }
+        try { data = JSON.parse(text); } catch(pe) {
+          // POST fallback
+          const r2 = await fetch(APPS_SCRIPT_URL, {
+            method: 'POST', redirect: 'follow',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: 'getMaddeler' })
+          });
+          data = JSON.parse(await r2.text());
+        }
+      } else {
+        const r2 = await fetch(APPS_SCRIPT_URL, {
+          method: 'POST', redirect: 'follow',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: 'getMaddeler' })
+        });
+        data = JSON.parse(await r2.text());
+      }
+    } catch(fe) { return null; }
     if (!data || data.status !== 'OK' || !data.maddeler) return null;
 
     const adlar      = {};
@@ -4643,14 +4658,36 @@ async function _myonYukle() {
       APPS_SCRIPT_URL + (APPS_SCRIPT_URL.includes('?') ? '&' : '?') + 'action=' + action + '&t=' + Date.now();
 
     let data = null;
-    // Önce fetch dene, olmadı JSONP
+    // Fetch ile dene (senkronize ile aynı yöntem — GitHub Pages'de çalışır)
     try {
       const resp = await fetch(buildUrl('getMaddeler'), { method: 'GET', redirect: 'follow' });
       if (resp.ok) {
         const text = await resp.text();
-        try { data = JSON.parse(text); } catch(pe) { data = await _jsonpFetch(buildUrl('getMaddeler')); }
-      } else { data = await _jsonpFetch(buildUrl('getMaddeler')); }
-    } catch(fe) { data = await _jsonpFetch(buildUrl('getMaddeler')); }
+        try {
+          data = JSON.parse(text);
+        } catch(pe) {
+          // HTML redirect geldi — URL'den action parametresi kaybolmuş olabilir
+          // POST ile dene
+          const resp2 = await fetch(APPS_SCRIPT_URL, {
+            method: 'POST', redirect: 'follow',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ action: 'getMaddeler' })
+          });
+          const text2 = await resp2.text();
+          data = JSON.parse(text2);
+        }
+      } else {
+        // GET olmadı, POST dene
+        const resp2 = await fetch(APPS_SCRIPT_URL, {
+          method: 'POST', redirect: 'follow',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action: 'getMaddeler' })
+        });
+        data = JSON.parse(await resp2.text());
+      }
+    } catch(fe) {
+      throw new Error('Bağlantı hatası: ' + fe.message);
+    }
 
     if (!data || data.status !== 'OK' || !data.maddeler) {
       throw new Error(data?.mesaj || 'Madde listesi alınamadı');
