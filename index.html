@@ -3,7 +3,7 @@
 <head>
 <script>
 // Apps Script Web App inject — doGet tarafından string replace ile doldurulur
-var __WEB_APP_URL__ = 'https://script.google.com/macros/s/AKfycbxawNCbJuv1byNt8Xu81ySpDc-vT9vXvvBoORz5fot9HQ2FTKWHY_G7J09aag8gKpFG/exec';
+var __WEB_APP_URL__ = 'https://script.google.com/macros/s/AKfycbyNCaJ-6EqO1C558AS2zAvz_WmNhjHE-PYDO7es7PxqW_e7ATC6qRCwe8cjs1OBJKmh/exec';
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0, user-scalable=yes">
@@ -2886,24 +2886,14 @@ globalThis.maddelerYukle = async function() {
       const resp = await fetch(buildMaddeUrl(), { method: 'GET', redirect: 'follow' });
       if (resp.ok) {
         const text = await resp.text();
-        try { data = JSON.parse(text); } catch(pe) {
-          // POST fallback
-          const r2 = await fetch(APPS_SCRIPT_URL, {
-            method: 'POST', redirect: 'follow',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({ action: 'getMaddeler' })
-          });
-          data = JSON.parse(await r2.text());
-        }
+        try { data = JSON.parse(text); }
+        catch(pe) { data = await _jsonpFetch(buildMaddeUrl()); }
       } else {
-        const r2 = await fetch(APPS_SCRIPT_URL, {
-          method: 'POST', redirect: 'follow',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ action: 'getMaddeler' })
-        });
-        data = JSON.parse(await r2.text());
+        data = await _jsonpFetch(buildMaddeUrl());
       }
-    } catch(fe) { return null; }
+    } catch(fe) {
+      try { data = await _jsonpFetch(buildMaddeUrl()); } catch(je) { return null; }
+    }
     if (!data || data.status !== 'OK' || !data.maddeler) return null;
 
     const adlar      = {};
@@ -4658,35 +4648,24 @@ async function _myonYukle() {
       APPS_SCRIPT_URL + (APPS_SCRIPT_URL.includes('?') ? '&' : '?') + 'action=' + action + '&t=' + Date.now();
 
     let data = null;
-    // Fetch ile dene (senkronize ile aynı yöntem — GitHub Pages'de çalışır)
+    // GET → JSON parse → JSONP fallback (senkronize ile aynı zincir)
     try {
       const resp = await fetch(buildUrl('getMaddeler'), { method: 'GET', redirect: 'follow' });
       if (resp.ok) {
         const text = await resp.text();
-        try {
-          data = JSON.parse(text);
-        } catch(pe) {
-          // HTML redirect geldi — URL'den action parametresi kaybolmuş olabilir
-          // POST ile dene
-          const resp2 = await fetch(APPS_SCRIPT_URL, {
-            method: 'POST', redirect: 'follow',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify({ action: 'getMaddeler' })
-          });
-          const text2 = await resp2.text();
-          data = JSON.parse(text2);
+        try { data = JSON.parse(text); }
+        catch(pe) {
+          console.warn('getMaddeler: JSON değil, JSONP deneniyor');
+          data = await _jsonpFetch(buildUrl('getMaddeler'));
         }
       } else {
-        // GET olmadı, POST dene
-        const resp2 = await fetch(APPS_SCRIPT_URL, {
-          method: 'POST', redirect: 'follow',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ action: 'getMaddeler' })
-        });
-        data = JSON.parse(await resp2.text());
+        console.warn('getMaddeler: HTTP ' + resp.status + ', JSONP deneniyor');
+        data = await _jsonpFetch(buildUrl('getMaddeler'));
       }
     } catch(fe) {
-      throw new Error('Bağlantı hatası: ' + fe.message);
+      console.warn('getMaddeler fetch başarısız, JSONP deneniyor:', fe.message);
+      try { data = await _jsonpFetch(buildUrl('getMaddeler')); }
+      catch(je) { throw new Error('Bağlantı hatası: ' + je.message); }
     }
 
     if (!data || data.status !== 'OK' || !data.maddeler) {
