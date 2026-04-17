@@ -3,7 +3,7 @@
 <head>
 <script>
 // Apps Script Web App inject — doGet tarafından string replace ile doldurulur
-var __WEB_APP_URL__ = 'https://script.google.com/macros/s/AKfycbxeqxynkcN_kM2zvDJHL5rBAZ3-qn13FQUPPtPzLXLIPYJma6z6MD9uh-qYaIAWQ8Yf/exec';
+var __WEB_APP_URL__ = '%%WEB_APP_URL%%';
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0, user-scalable=yes">
@@ -4067,13 +4067,10 @@ globalThis.brifingRaporuOlustur = function() {
     try {
       const v = filtreliVeri();
       const raporHtml = _brifingHtmlOlustur(v);
-      const win = window.open('', '_blank', 'width=900,height=700');
+      const win = window.open('', '_blank', 'width=960,height=800');
       win.document.write(raporHtml);
       win.document.close();
-      // Tarayıcının render etmesini bekle, sonra yazdırma dialogu
-      win.onload = function() {
-        setTimeout(function() { win.print(); }, 400);
-      };
+      // Otomatik yazdırma YOK — kullanıcı toolbar'dan yazdırır
     } catch(e) {
       toast('Rapor oluşturma hatası: ' + e.message, 't-err');
       console.error(e);
@@ -4408,13 +4405,74 @@ globalThis._brifingHtmlOlustur = function(v) {
   /* ALT BİLGİ */
   .altbilgi { text-align: center; font-size: 7.5px; color: #9ca3af; margin-top: 18px; padding-top: 8px; border-top: 1px solid #e2e8f0; }
 
+  /* TOOLBAR */
+  .rapor-toolbar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+    background: #0d2b5e;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 20px; gap: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.4);
+    font-family: Arial, sans-serif;
+  }
+  .rapor-toolbar-sol {
+    display: flex; align-items: center; gap: 10px;
+  }
+  .rapor-toolbar-baslik {
+    color: #93c5fd; font-size: 13px; font-weight: 700;
+  }
+  .rapor-toolbar-meta {
+    color: #64748b; font-size: 11px;
+  }
+  .rapor-toolbar-sag {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .tb-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px; border-radius: 8px; border: none;
+    font-size: 13px; font-weight: 700; cursor: pointer;
+    font-family: Arial, sans-serif; transition: all .2s;
+  }
+  .tb-btn-yazdir {
+    background: linear-gradient(135deg,#3b82f6,#1d4ed8);
+    color: #fff; box-shadow: 0 2px 8px rgba(59,130,246,.4);
+  }
+  .tb-btn-yazdir:hover { filter: brightness(1.1); transform: translateY(-1px); }
+  .tb-btn-kapat {
+    background: rgba(255,255,255,.1); color: #94a3b8;
+    border: 1px solid rgba(255,255,255,.15);
+  }
+  .tb-btn-kapat:hover { background: rgba(255,255,255,.2); color: #fff; }
+
+  /* Toolbar için body'ye boşluk */
+  body { padding-top: 56px; }
+
   @media print {
-    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .rapor-toolbar { display: none !important; }
+    body { padding-top: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .sayfa-sonu { page-break-before: always; }
   }
 </style>
 </head>
 <body>
+
+<!-- ══ TOOLBAR ══ -->
+<div class="rapor-toolbar" id="raporToolbar">
+  <div class="rapor-toolbar-sol">
+    <span style="font-size:20px">🛡️</span>
+    <div>
+      <div class="rapor-toolbar-baslik">ISG Brifing Raporu — Şehitkamil İlçe MEM</div>
+      <div class="rapor-toolbar-meta">Önizleme · Yazdırmak veya PDF kaydetmek için butona basın</div>
+    </div>
+  </div>
+  <div class="rapor-toolbar-sag">
+    <button class="tb-btn tb-btn-yazdir" onclick="window.print()">
+      🖨️ Yazdır / PDF Kaydet
+    </button>
+    <button class="tb-btn tb-btn-kapat" onclick="window.close()">
+      ✕ Kapat
+    </button>
+  </div>
+</div>
 
 <!-- ══ KAPAK ══ -->
 <div class="kapak">
