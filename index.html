@@ -3,7 +3,7 @@
 <head>
 <script>
 // Apps Script Web App inject — doGet tarafından string replace ile doldurulur
-var __WEB_APP_URL__ = 'https://script.google.com/macros/s/AKfycbyNCaJ-6EqO1C558AS2zAvz_WmNhjHE-PYDO7es7PxqW_e7ATC6qRCwe8cjs1OBJKmh/exec';
+var __WEB_APP_URL__ = '%%WEB_APP_URL%%';
 </script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=3.0, user-scalable=yes">
@@ -133,11 +133,45 @@ body{font-family:Arial,sans-serif;background:var(--bg);color:var(--txt);min-heig
 .ek-blue  .ekpi-val{color:#60a5fa;}
 .ek-green .ekpi-val{color:#34d399;}
 .ekpi-lbl{font-size:10px;color:var(--mut2);margin-top:4px;text-transform:uppercase;letter-spacing:.7px;}
-/* EBYS liste satırları */
-.ebys-satir{display:grid;grid-template-columns:1fr auto auto auto;gap:8px;align-items:center;padding:8px 10px;border-radius:7px;margin-bottom:4px;font-size:12px;border:1px solid rgba(255,255,255,.05);}
+/* EBYS liste satırları — kompakt */
+.ebys-satir{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;margin-bottom:3px;font-size:12px;border:1px solid rgba(255,255,255,.05);cursor:default;transition:background .15s;}
 .ebys-satir:hover{background:rgba(255,255,255,.04);}
-.ebys-okul{font-weight:600;color:var(--fg);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.ebys-tarih{font-size:11px;color:var(--mut2);white-space:nowrap;}
+.ebys-satir-sol{flex:1;min-width:0;}
+.ebys-okul{font-weight:600;color:var(--fg);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;}
+.ebys-tarih{font-size:10.5px;color:var(--mut2);white-space:nowrap;margin-top:1px;}
+.ebys-satir-sag{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+
+/* EBYS form drawer */
+.ebys-form-drawer-bg{
+  display:none;position:fixed;inset:0;
+  background:rgba(5,10,20,.72);backdrop-filter:blur(5px);
+  z-index:3000;align-items:center;justify-content:center;padding:20px;
+}
+.ebys-form-drawer-bg.open{display:flex;}
+.ebys-form-drawer{
+  width:100%;max-width:860px;
+  height:82vh;min-height:340px;max-height:90vh;
+  background:var(--sur);
+  border-radius:16px;
+  border:1px solid var(--bdr);
+  box-shadow:0 24px 64px rgba(0,0,0,.6);
+  display:flex;flex-direction:column;
+  animation:modalPop .25s cubic-bezier(.34,1.56,.64,1);
+  overflow:hidden;position:relative;
+  resize:vertical;
+}
+.ebys-drw-head{
+  padding:14px 20px 12px;
+  border-bottom:1px solid var(--bdr);
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
+}
+.ebys-drw-okul{
+  font-size:14px;font-weight:800;color:var(--txt);
+  font-family:'Arial Black',Arial,sans-serif;
+}
+.ebys-drw-meta{font-size:11px;color:var(--mut2);margin-top:2px;}
+.ebys-drw-body{flex:1;overflow-y:auto;padding:16px 20px;}
 .ebys-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap;}
 .eb-red   {background:rgba(220,38,38,.2);color:#f87171;}
 .eb-amber {background:rgba(245,158,11,.2);color:#fbbf24;}
@@ -720,35 +754,77 @@ body{font-family:Arial,sans-serif;background:var(--bg);color:var(--txt);min-heig
 .drawer-overlay {
   display: none;
   position: fixed; inset: 0;
-  background: rgba(5,10,20,.7);
-  backdrop-filter: blur(4px);
+  background: rgba(5,10,20,.72);
+  backdrop-filter: blur(5px);
   z-index: 2000;
-  align-items: flex-end;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
 }
 .drawer-overlay.open { display: flex; }
 .drawer-panel {
-  width: 100%; max-height: 88vh;
+  width: 100%;
+  max-width: 860px;
+  height: 82vh;
+  min-height: 320px;
+  max-height: 90vh;
   background: var(--sur);
-  border-radius: 20px 20px 0 0;
-  border-top: 1px solid var(--bdr);
+  border-radius: 16px;
+  border: 1px solid var(--bdr);
+  box-shadow: 0 24px 64px rgba(0,0,0,.6);
   display: flex; flex-direction: column;
-  animation: drawerUp .3s cubic-bezier(.4,0,.2,1);
+  animation: modalPop .25s cubic-bezier(.34,1.56,.64,1);
   overflow: hidden;
+  position: relative;
+  resize: vertical;
 }
-@keyframes drawerUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes modalPop {
+  from { opacity: 0; transform: scale(.94) translateY(12px); }
+  to   { opacity: 1; transform: scale(1)   translateY(0); }
+}
+/* Resize tutamacı */
+.drawer-panel::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 6px;
+  cursor: ns-resize;
+  background: transparent;
+}
 .drawer-handle {
-  width: 40px; height: 4px;
-  background: rgba(255,255,255,.18); border-radius: 2px;
-  margin: 10px auto 0;
-  flex-shrink: 0; cursor: pointer;
+  width: 36px; height: 4px;
+  background: rgba(255,255,255,.15); border-radius: 2px;
+  margin: 8px auto 0;
+  flex-shrink: 0; cursor: ns-resize;
+  transition: background .2s;
 }
+.drawer-handle:hover { background: rgba(255,255,255,.35); }
 .drawer-head {
-  padding: 14px 20px 10px;
+  padding: 12px 20px 10px;
   display: flex; align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid var(--bdr);
   flex-shrink: 0;
 }
+/* Resize tutamacı — panel alt kenarı */
+.resize-bar {
+  height: 5px; width: 100%;
+  background: transparent;
+  cursor: ns-resize;
+  flex-shrink: 0;
+  border-top: 1px solid rgba(255,255,255,.06);
+  position: relative;
+}
+.resize-bar::after {
+  content: '';
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%,-50%);
+  width: 40px; height: 3px;
+  border-radius: 2px;
+  background: rgba(255,255,255,.18);
+}
+.resize-bar:hover::after { background: rgba(255,255,255,.35); }
 .drawer-title {
   font-family: 'Arial Black', Arial, sans-serif;
   font-weight: 800; font-size: 14px;
@@ -859,26 +935,30 @@ body{font-family:Arial,sans-serif;background:var(--bg);color:var(--txt);min-heig
 .btn-madde-yon:hover{background:rgba(16,185,129,.2);border-color:rgba(16,185,129,.5);}
 
 /* Madde tablosu */
-.myon-tablo{width:100%;border-collapse:collapse;font-size:12px;}
+.myon-tablo{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed;}
 .myon-tablo th{
-  background:#0d2b5e;color:#fff;padding:8px 10px;
+  background:#0d2b5e;color:#fff;padding:9px 12px;
   font-size:10px;text-transform:uppercase;letter-spacing:.6px;
   font-weight:700;text-align:left;position:sticky;top:0;z-index:1;
 }
-.myon-tablo th:first-child{width:50px;text-align:center;}
-.myon-tablo th:nth-child(2){width:60px;text-align:center;}
-.myon-tablo th:nth-child(3){width:70px;text-align:center;}
-.myon-tablo th:last-child{width:80px;text-align:center;}
+.myon-tablo th:nth-child(1){width:52px;text-align:center;}
+.myon-tablo th:nth-child(2){width:52px;text-align:center;}
+.myon-tablo th:nth-child(3){width:auto;}
+.myon-tablo th:nth-child(4){width:72px;text-align:center;}
+.myon-satir{cursor:pointer;}
 .myon-satir td{
-  padding:8px 10px;border-bottom:1px solid rgba(255,255,255,.05);
+  padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.04);
   vertical-align:middle;color:var(--mut2);
+  transition:background .12s;
 }
-.myon-satir:hover td{background:rgba(255,255,255,.03);}
-.myon-satir.pasif td{opacity:.45;}
-.myon-satir td:first-child{text-align:center;font-weight:700;color:var(--mut);font-size:11px;}
+.myon-satir:hover td{background:rgba(56,189,248,.07);}
+.myon-satir.pasif td{opacity:.4;}
+.myon-satir td:nth-child(1){text-align:center;font-weight:700;color:var(--mut);font-size:11px;}
 .myon-satir td:nth-child(2){text-align:center;}
-.myon-satir td:nth-child(3){color:var(--txt);font-weight:500;font-size:12px;}
-.myon-satir td:last-child{text-align:center;}
+.myon-satir td:nth-child(3){color:var(--txt);font-weight:500;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.myon-satir td:nth-child(4){text-align:center;}
+/* Aktif satır vurgusu */
+.myon-satir.secili td{background:rgba(56,189,248,.1)!important;}
 
 /* Aktif badge */
 .myon-aktif-yes{background:rgba(16,185,129,.15);color:#10b981;
@@ -1414,6 +1494,22 @@ html,body{overflow-x:hidden;-webkit-overflow-scrolling:touch}
 </div>
 
 
+<!-- ═══ EBYS GÜNCELLEME DRAWER ═══ -->
+<div class="ebys-form-drawer-bg" id="ebysFormDrawerBg" onclick="ebysDrawerKapat(event)">
+  <div class="ebys-form-drawer">
+    <div class="drawer-handle" onclick="ebysDrawerKapat()"></div>
+    <div class="ebys-drw-head">
+      <div>
+        <div class="ebys-drw-okul" id="ebysDrawerOkul">—</div>
+        <div class="ebys-drw-meta" id="ebysDrawerMeta"></div>
+      </div>
+      <button class="drawer-kapat" onclick="ebysDrawerKapat()">✕</button>
+    </div>
+    <div class="ebys-drw-body" id="ebysDrawerBody"></div>
+    <div class="resize-bar" id="ebysResizeBar"></div>
+  </div>
+</div>
+
 <!-- ═══ MADDE YÖNETİMİ DRAWER ═══ -->
 <div class="drawer-overlay" id="maddeYonDrawerBg" onclick="maddeYonetimiKapat(event)">
   <div class="drawer-panel" style="max-height:92vh">
@@ -1501,7 +1597,7 @@ html,body{overflow-x:hidden;-webkit-overflow-scrolling:touch}
         <thead>
           <tr>
             <th>No</th><th>Kat.</th><th>Madde Adı</th>
-            <th>Durum</th><th>İşlem</th>
+            <th>Durum</th>
           </tr>
         </thead>
         <tbody id="myonTbody"></tbody>
@@ -1510,6 +1606,7 @@ html,body{overflow-x:hidden;-webkit-overflow-scrolling:touch}
         Sonuç bulunamadı
       </div>
     </div>
+    <div class="resize-bar" id="myonResizeBar"></div>
     <div class="drawer-footer" style="justify-content:space-between;padding:8px 20px;">
       <span id="myonFooterBilgi" style="font-size:11px;color:var(--mut2)"></span>
       <button onclick="myonSheetteAc()" style="background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.25);color:var(--teal);padding:6px 14px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:Arial,sans-serif;">
@@ -1533,6 +1630,7 @@ html,body{overflow-x:hidden;-webkit-overflow-scrolling:touch}
     <div class="drawer-body">
       <div id="riskDrawerList"></div>
     </div>
+    <div class="resize-bar" id="riskResizeBar"></div>
     <div class="drawer-footer" id="riskDrawerSayfa"></div>
   </div>
 </div>
@@ -1558,6 +1656,7 @@ html,body{overflow-x:hidden;-webkit-overflow-scrolling:touch}
         <tbody id="tabloDrawerBody"></tbody>
       </table>
     </div>
+    <div class="resize-bar" id="tabloResizeBar"></div>
     <div class="drawer-footer" id="tabloDrawerSayfa"></div>
   </div>
 </div>
@@ -2027,134 +2126,53 @@ globalThis.ebysListeFiltrele = function(filtre) {
 
   const baslik = filtre ? '' : '<div style="font-size:11px;color:var(--mut2);margin-bottom:8px;padding:0 2px">Tümü · tıklayarak filtreleyin</div>';
 
+  window._ebysDrawerVeri = null;
+
   const satirlar = sirali.map((d, idx) => {
-    const cevapInfo = d.cevapTarih ? 'Son: ' + d.cevapTarih : (d.ebysTarih ? 'EBYS: ' + d.ebysTarih : 'Tarih yok');
+    const cevapInfo = d.cevapTarih ? 'Son: ' + d.cevapTarih : (d.ebysTarih ? 'EBYS: ' + d.ebysTarih : '');
     const giderilen = d.giderilen || 0;
     const uyg       = d.uyg || 0;
     const ilerleme  = uyg > 0 ? Math.round(giderilen / uyg * 100) : 0;
     const bg = d._sinif === 'kapatildi'       ? 'rgba(16,185,129,.05)'
-             : d._sinif === 'suredoldu'        ? 'rgba(220,38,38,.07)'
-             : d._sinif === 'yazigonderilmedi' ? 'rgba(245,158,11,.05)'
-             : 'rgba(59,130,246,.04)';
+             : d._sinif === 'suredoldu'        ? 'rgba(220,38,38,.06)'
+             : d._sinif === 'yazigonderilmedi' ? 'rgba(245,158,11,.04)'
+             : 'rgba(59,130,246,.03)';
+    const uid = 'ebys_' + idx;
+    const okulEnc  = encodeURIComponent(d.okul);
+    const tarihEnc = encodeURIComponent(d.tarih || '');
 
-    // Benzersiz ID — okul adı ve index kullanarak
-    const uid = 'ebys_' + idx + '_' + Date.now();
+    const raporKismi = d.raporUrl
+      ? '<a href="' + d.raporUrl + '" target="_blank" style="color:var(--teal);font-size:10.5px;white-space:nowrap">📄 Rapor</a>' : '';
+    const arsivKismi = (d.arsivler && d.arsivler.length > 0)
+      ? '<button onclick="arsivModalAc(event,\'' + encodeURIComponent(JSON.stringify(d.arsivler)) + '\')" '
+        + 'style="background:rgba(148,163,184,.1);border:1px solid rgba(148,163,184,.15);color:var(--mut2);'
+        + 'font-size:10px;padding:2px 6px;border-radius:4px;cursor:pointer;font-family:Arial,sans-serif;">'
+        + '🗂️ ' + d.arsivler.length + '</button>' : '';
 
-    return '<div class="ebys-satir" style="background:' + bg + ';flex-direction:column;align-items:stretch;padding:0;">' +
+    const ilerlemeBant = uyg > 0
+      ? '<div style="display:inline-flex;align-items:center;gap:3px;margin-left:5px">'
+        + '<div style="width:44px;height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden">'
+        + '<div style="width:' + ilerleme + '%;height:100%;background:#10b981;border-radius:2px"></div></div>'
+        + '<span style="font-size:10px;color:var(--mut)">%' + ilerleme + '</span></div>' : '';
 
-      // ── Ana satır içeriği ──
-      '<div style="display:grid;grid-template-columns:1fr auto auto auto auto auto;gap:8px;align-items:center;padding:8px 10px;">' +
-        '<div>' +
-          '<div class="ebys-okul">' + (d.okul || '–') + '</div>' +
-          '<div class="ebys-tarih">' + (d.tarih || '') + ' · ' + (d.tur || '') + ' · ' + cevapInfo + '</div>' +
-        '</div>' +
-        '<div style="text-align:right;font-size:11px;color:var(--mut2)">' + ilerleme + '%<br><span style="font-size:10px">giderildi</span></div>' +
-        '<div><span class="ebys-badge ' + d._badgeCls + '">' + d._badge + '</span></div>' +
-        ('<div style="display:flex;flex-direction:column;gap:3px;align-items:flex-end">' +
-          (d.raporUrl ? '<a href="' + d.raporUrl + '" target="_blank" style="color:var(--teal);font-size:11px;white-space:nowrap">📄 Güncel Rapor</a>' : '') +
-          ((d.arsivler && d.arsivler.length > 0)
-            ? '<button onclick="arsivModalAc(event,\'' + encodeURIComponent(JSON.stringify(d.arsivler)) + '\')" ' +
-              'style="background:rgba(148,163,184,.1);border:1px solid rgba(148,163,184,.2);color:var(--mut2);' +
-              'font-size:10px;padding:2px 7px;border-radius:4px;cursor:pointer;font-family:Arial,sans-serif;' +
-              'white-space:nowrap;text-align:right;">' +
-              '🗂️ ' + d.arsivler.length + ' Arşiv</button>'
-            : '') +
-          (!d.raporUrl && !(d.arsivler && d.arsivler.length) ? '<span style="color:var(--mut);font-size:10px">–</span>' : '') +
-        '</div>') +
-        // ✏️ Güncelle butonu
-        '<button onclick="ebysFormToggle(\'' + uid + '\')" ' +
-          'style="background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.3);color:var(--teal);' +
-          'font-size:11px;font-weight:700;padding:3px 10px;border-radius:6px;cursor:pointer;' +
-          'font-family:Arial,sans-serif;white-space:nowrap;transition:all .2s;" ' +
-          'title="EBYS bilgilerini güncelle">✏️ Güncelle</button>' +
-        '<button class="btn-rapor-yenile" id="' + uid + '_raporBtn" ' +
-          'onclick="raporYenileBaslat(\'' + uid + '\',\'' + encodeURIComponent(d.okul) + '\',\'' + encodeURIComponent(d.tarih || '') + '\')" ' +
-          'title="Son giderme bilgileriyle raporu yeniden oluştur"><span class="rapor-spin" id="' + uid + '_raporSpin"></span>🔄 Raporu Yenile</button>' +
-      '</div>' +
-
-      // ── Inline güncelleme formu ──
-      '<div class="ebys-guncelle-form" id="' + uid + '">' +
-        '<div class="ebys-gf-grid">' +
-
-          '<div class="ebys-gf-field">' +
-            '<span class="ebys-gf-lbl">Yazı No</span>' +
-            '<input class="ebys-gf-inp" type="text" id="' + uid + '_yaziNo" ' +
-              'value="' + (d.yazıNo || '') + '" placeholder="2025/123">' +
-          '</div>' +
-
-          '<div class="ebys-gf-field">' +
-            '<span class="ebys-gf-lbl">EBYS Gönderim Tarihi</span>' +
-            '<input class="ebys-gf-inp" type="date" id="' + uid + '_ebysTarih" ' +
-              'value="' + _tarihInputFormat(d.ebysTarih) + '">' +
-          '</div>' +
-
-          '<div class="ebys-gf-field">' +
-            '<span class="ebys-gf-lbl">EBYS Durumu</span>' +
-            '<select class="ebys-gf-inp" id="' + uid + '_ebysDurum">' +
-              '<option value="⏳ Bekliyor"'    + ((!d.ebys || d.ebys.includes('Bekl')) ? ' selected' : '') + '>⏳ Bekliyor</option>' +
-              '<option value="✅ Gönderildi"'  + (d.ebys && d.ebys.includes('Gönderildi') ? ' selected' : '') + '>✅ Gönderildi</option>' +
-              '<option value="❌ İade Edildi"' + (d.ebys && d.ebys.includes('İade') ? ' selected' : '') + '>❌ İade Edildi</option>' +
-            '</select>' +
-          '</div>' +
-
-          '<div class="ebys-gf-field">' +
-            '<span class="ebys-gf-lbl">Cevap Son Tarihi</span>' +
-            '<input class="ebys-gf-inp" type="date" id="' + uid + '_cevapTarih" ' +
-              'value="' + _tarihInputFormat(d.cevapTarih) + '">' +
-          '</div>' +
-
-          '<div class="ebys-gf-field">' +
-            '<span class="ebys-gf-lbl">Cevap Durumu</span>' +
-            '<select class="ebys-gf-inp" id="' + uid + '_cevapDurum">' +
-              '<option value="⏳ Bekleniyor"'   + ((!d.cevap || d.cevap.includes('Bekl')) ? ' selected' : '') + '>⏳ Bekleniyor</option>' +
-              '<option value="✅ Cevaplandı"'   + (d.cevap && d.cevap.includes('Cevap') ? ' selected' : '') + '>✅ Cevaplandı</option>' +
-              '<option value="⚠️ Yetersiz"'     + (d.cevap && d.cevap.includes('Yetersiz') ? ' selected' : '') + '>⚠️ Yetersiz</option>' +
-              '<option value="❌ Cevap Yok"'    + (d.cevap && d.cevap.includes('Yok') ? ' selected' : '') + '>❌ Cevap Yok</option>' +
-            '</select>' +
-          '</div>' +
-
-          '<div class="ebys-gf-field">' +
-            '<span class="ebys-gf-lbl">Cevap Notu</span>' +
-            '<input class="ebys-gf-inp" type="text" id="' + uid + '_cevapNot" ' +
-              'value="' + (d.cevapNot || '') + '" placeholder="Kısa not…">' +
-          '</div>' +
-
-        '</div>' +
-
-        // Kapatma satırı
-        '<label class="ebys-gf-kapati">' +
-          '<input type="checkbox" id="' + uid + '_kapatiCb" ' +
-            (d._sinif === 'kapatildi' ? 'checked' : '') + ' ' +
-            'onchange="ebysKapatiToggle(\'' + uid + '\')">' +
-          ' Bu denetimi kapat (Genel Durum = ✅ Kapatıldı)' +
-        '</label>' +
-
-        '<div id="' + uid + '_kapatiTarihWrap" style="display:' + (d._sinif === 'kapatildi' ? 'flex' : 'none') + ';align-items:center;gap:8px;">' +
-          '<span class="ebys-gf-lbl">Kapatma Tarihi:</span>' +
-          '<input class="ebys-gf-inp" type="date" id="' + uid + '_kapatiTarih" ' +
-            'value="' + _tarihInputFormat(d.kapatmaTarih) + '" style="width:160px;">' +
-        '</div>' +
-
-        // ── Uygunsuzluk Giderme Bolumu ──
-        '<div class="ug-bolum">' +
-          '<div class="ug-baslik">📋 Uygunsuzluk Giderme Detayi</div>' +
-          '<button class="ug-yukle-btn" id="' + uid + '_ugYukle" ' +
-            'onclick="ugMaddeleriYukle(\'' + uid + '\',\'' + encodeURIComponent(d.okul) + '\',\'' + encodeURIComponent(d.tarih || '') + '\')">' +
-            'Maddeleri Yukle (' + (d.uyg || 0) + ' uygunsuzluk)</button>' +
-          '<div id="' + uid + '_ugListe" class="ug-liste"></div>' +
-          '<div id="' + uid + '_ugOzet" class="ug-ozet"></div>' +
-        '</div>' +
-
-        '<div class="ebys-gf-btns">' +
-          '<button class="ebys-gf-iptal" onclick="ebysFormToggle(\'' + uid + '\')">İptal</button>' +
-          '<button class="ebys-gf-kaydet" id="' + uid + '_kaydetBtn" ' +
-            'onclick="ebysGuncelleKaydet(\'' + uid + '\',\'' + encodeURIComponent(d.okul) + '\',\'' + encodeURIComponent(d.tarih || '') + '\')">' +
-            '<span class="ebys-gf-spin" id="' + uid + '_spin"></span>💾 Kaydet' +
-          '</button>' +
-        '</div>' +
-
-      '</div>' + // /ebys-guncelle-form
-    '</div>'; // /ebys-satir
+    return '<div class="ebys-satir" style="background:' + bg + '">'
+      + '<div class="ebys-satir-sol">'
+        + '<div class="ebys-okul">' + (d.okul || '–') + '</div>'
+        + '<div class="ebys-tarih">'
+          + (d.tarih || '') + (d.tur ? ' · ' + d.tur : '')
+          + (cevapInfo ? ' · ' + cevapInfo : '')
+          + ilerlemeBant
+        + '</div>'
+      + '</div>'
+      + '<div class="ebys-satir-sag">'
+        + '<span class="ebys-badge ' + d._badgeCls + '">' + d._badge + '</span>'
+        + raporKismi + arsivKismi
+        + '<button onclick="ebysDrawerAc(\'' + uid + '\',\'' + okulEnc + '\',\'' + tarihEnc + '\')" '
+          + 'style="background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.28);color:var(--teal);'
+          + 'font-size:11px;font-weight:700;padding:4px 10px;border-radius:7px;cursor:pointer;'
+          + 'font-family:Arial,sans-serif;white-space:nowrap;">✏️ Güncelle</button>'
+      + '</div>'
+    + '</div>';
   }).join('');
 
   liste.innerHTML = baslik + satirlar;
@@ -4722,20 +4740,16 @@ function _myonRender() {
 
   tbody.innerHTML = _myonFiltreli.map(function(m) {
     const aktifBadge = m.aktif !== false
-      ? '<span class="myon-aktif-yes">Aktif</span>'
-      : '<span class="myon-aktif-no">Pasif</span>';
-    const satirClass = m.aktif === false ? 'myon-satir pasif' : 'myon-satir';
-    const ad = (m.ad || '').length > 55 ? (m.ad||'').substring(0,55)+'…' : (m.ad||'–');
+      ? '<span class="myon-aktif-yes">● Aktif</span>'
+      : '<span class="myon-aktif-no">● Pasif</span>';
+    const satirClass = (m.aktif === false ? 'myon-satir pasif' : 'myon-satir')
+      + (_myonDuzenlenen === m.no ? ' secili' : '');
 
-    return '<tr class="' + satirClass + '">' +
+    return '<tr class="' + satirClass + '" onclick="myonDuzenleAc(' + m.no + ')" title="Düzenlemek için tıklayın">' +
       '<td>' + m.no + '</td>' +
       '<td><span class="myon-kat-badge">' + (m.kat||'?') + '</span></td>' +
-      '<td title="' + (m.ad||'') + '">' + ad + '</td>' +
+      '<td>' + (m.ad||'–') + '</td>' +
       '<td>' + aktifBadge + '</td>' +
-      '<td><button onclick="myonDuzenleAc(' + m.no + ')" ' +
-        'style="background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.2);' +
-        'color:var(--teal);padding:3px 10px;border-radius:6px;font-size:11px;' +
-        'font-weight:700;cursor:pointer;font-family:Arial,sans-serif;">✏️ Düzenle</button></td>' +
     '</tr>';
   }).join('');
 }
@@ -4779,6 +4793,12 @@ globalThis.myonDuzenleAc = function(no) {
   document.getElementById('myonSilBtn').style.display  = 'inline-flex';
   document.getElementById('myonKaydetBtn').textContent = '💾 Güncelle';
   document.getElementById('myonEditPanel').style.display = 'block';
+  // Tıklanan satırı vurgula
+  document.querySelectorAll('.myon-satir').forEach(function(r){ r.classList.remove('secili'); });
+  var satirlar = document.querySelectorAll('.myon-satir');
+  satirlar.forEach(function(r) {
+    if (parseInt(r.querySelector('td').textContent) === no) r.classList.add('secili');
+  });
   setTimeout(function() {
     document.getElementById('myonEditPanel').scrollIntoView({behavior:'smooth', block:'nearest'});
   }, 80);
@@ -4938,10 +4958,10 @@ document.addEventListener('DOMContentLoaded', function() {
   renderDash();
   if (APPS_SCRIPT_URL) setTimeout(okulListesiSheetstenYukle, 1500);
 });
-// ESC ile açık drawer'ı kapat
+// ESC ile açık drawer/modal'ı kapat
 document.addEventListener('keydown', function(e) {
   if (e.key !== 'Escape') return;
-  ['riskDrawerBg','tabloDrawerBg'].forEach(function(id) {
+  ['riskDrawerBg','tabloDrawerBg','maddeYonDrawerBg','ebysFormDrawerBg'].forEach(function(id) {
     const el = document.getElementById(id);
     if (el && el.classList.contains('open')) {
       el.classList.remove('open');
@@ -4949,6 +4969,61 @@ document.addEventListener('keydown', function(e) {
     }
   });
 });
+
+// ════════════════════════════════════════════════
+// MODAL RESIZE — Sürükleyerek yükseklik ayarla
+// Tüm .drawer-panel ve .ebys-form-drawer için çalışır
+// ════════════════════════════════════════════════
+(function() {
+  var _resizing = false;
+  var _startY   = 0;
+  var _startH   = 0;
+  var _panel    = null;
+
+  // Resize bar mousedown
+  document.addEventListener('mousedown', function(e) {
+    var bar = e.target.closest('.resize-bar');
+    if (!bar) return;
+    var panel = bar.closest('.drawer-panel, .ebys-form-drawer');
+    if (!panel) return;
+    _resizing = true;
+    _panel    = panel;
+    _startY   = e.clientY;
+    _startH   = panel.getBoundingClientRect().height;
+    document.body.style.userSelect = 'none';
+    e.preventDefault();
+  });
+
+  // Touch desteği
+  document.addEventListener('touchstart', function(e) {
+    var bar = e.target.closest('.resize-bar');
+    if (!bar) return;
+    var panel = bar.closest('.drawer-panel, .ebys-form-drawer');
+    if (!panel) return;
+    _resizing = true;
+    _panel    = panel;
+    _startY   = e.touches[0].clientY;
+    _startH   = panel.getBoundingClientRect().height;
+    e.preventDefault();
+  }, { passive: false });
+
+  document.addEventListener('mousemove', function(e) {
+    if (!_resizing || !_panel) return;
+    var delta  = e.clientY - _startY;
+    var newH   = Math.max(280, Math.min(window.innerHeight * 0.92, _startH + delta));
+    _panel.style.height = newH + 'px';
+  });
+
+  document.addEventListener('touchmove', function(e) {
+    if (!_resizing || !_panel) return;
+    var delta  = e.touches[0].clientY - _startY;
+    var newH   = Math.max(280, Math.min(window.innerHeight * 0.92, _startH + delta));
+    _panel.style.height = newH + 'px';
+  }, { passive: false });
+
+  document.addEventListener('mouseup',  function() { _resizing = false; _panel = null; document.body.style.userSelect = ''; });
+  document.addEventListener('touchend', function() { _resizing = false; _panel = null; });
+})();
 
 // ════════════════════════════════════════════════
 // EBYS GÜNCELLEME — INLINE FORM
@@ -4969,9 +5044,8 @@ globalThis._tarihInputFormat = function(tarihStr) {
 
 // Inline formu aç/kapat
 globalThis.ebysFormToggle = function(uid) {
-  const form = document.getElementById(uid);
-  if (!form) return;
-  form.classList.toggle('open');
+  // Eski çağrılar için stub — drawer sistemi kullanılıyor
+  if (_ebysDrawerAktif) ebysDrawerKapat();
 };
 
 // Kapatma checkbox'ı değişince tarih alanını göster/gizle
@@ -5172,6 +5246,101 @@ globalThis.raporYenileBaslat = async function(uid, okulEnc, tarihEnc) {
     if (spin) { spin.classList.remove('show'); }
   }
 };
+
+// ════════════════════════════════════════════════
+// EBYS GÜNCELLEME DRAWER
+// ════════════════════════════════════════════════
+var _ebysDrawerAktif = null;  // aktif {uid, okul, tarih, d}
+
+globalThis.ebysDrawerAc = function(uid, okulEnc, tarihEnc) {
+  const okul  = decodeURIComponent(okulEnc);
+  const tarih = decodeURIComponent(tarihEnc);
+  const d = (_ebysVeri || []).find(function(x){ return x.okul === okul; }) || {};
+
+  _ebysDrawerAktif = { uid, okul, tarih, d };
+
+  // Drawer başlığı
+  const okulEl = document.getElementById('ebysDrawerOkul');
+  const metaEl = document.getElementById('ebysDrawerMeta');
+  if (okulEl) okulEl.textContent = okul;
+  if (metaEl) metaEl.textContent = (d.tarih || '') + (d.tur ? ' · ' + d.tur : '')
+    + (d.uyg ? ' · ' + d.uyg + ' uygunsuzluk' : '');
+
+  // Form içeriğini oluştur
+  document.getElementById('ebysDrawerBody').innerHTML = _ebysDrawerFormHtml(uid, d);
+
+  document.getElementById('ebysFormDrawerBg').classList.add('open');
+  document.body.style.overflow = 'hidden';
+};
+
+globalThis.ebysDrawerKapat = function(e) {
+  if (!e || e.target === document.getElementById('ebysFormDrawerBg')) {
+    document.getElementById('ebysFormDrawerBg').classList.remove('open');
+    document.body.style.overflow = '';
+    _ebysDrawerAktif = null;
+  }
+};
+
+function _ebysDrawerFormHtml(uid, d) {
+  const ti = function(val) { return _tarihInputFormat ? _tarihInputFormat(val) : (val||''); };
+  const okulEnc  = encodeURIComponent(d.okul || '');
+  const tarihEnc = encodeURIComponent(d.tarih || '');
+
+  return '<div class="ebys-gf-grid">'
+    + '<div class="ebys-gf-field"><span class="ebys-gf-lbl">Yazı No</span>'
+      + '<input class="ebys-gf-inp" type="text" id="' + uid + '_yaziNo" value="' + (d.yazıNo||'') + '" placeholder="2025/123"></div>'
+    + '<div class="ebys-gf-field"><span class="ebys-gf-lbl">EBYS Gönderim Tarihi</span>'
+      + '<input class="ebys-gf-inp" type="date" id="' + uid + '_ebysTarih" value="' + ti(d.ebysTarih) + '"></div>'
+    + '<div class="ebys-gf-field"><span class="ebys-gf-lbl">EBYS Durumu</span>'
+      + '<select class="ebys-gf-inp" id="' + uid + '_ebysDurum">'
+      + '<option value="⏳ Bekliyor"'    + ((!d.ebys||d.ebys.includes('Bekl'))?' selected':'') + '>⏳ Bekliyor</option>'
+      + '<option value="✅ Gönderildi"'  + (d.ebys&&d.ebys.includes('Gönderildi')?' selected':'') + '>✅ Gönderildi</option>'
+      + '<option value="❌ İade Edildi"' + (d.ebys&&d.ebys.includes('İade')?' selected':'') + '>❌ İade Edildi</option>'
+      + '</select></div>'
+    + '<div class="ebys-gf-field"><span class="ebys-gf-lbl">Cevap Son Tarihi</span>'
+      + '<input class="ebys-gf-inp" type="date" id="' + uid + '_cevapTarih" value="' + ti(d.cevapTarih) + '"></div>'
+    + '<div class="ebys-gf-field"><span class="ebys-gf-lbl">Cevap Durumu</span>'
+      + '<select class="ebys-gf-inp" id="' + uid + '_cevapDurum">'
+      + '<option value="⏳ Bekleniyor"' + ((!d.cevap||d.cevap.includes('Bekl'))?' selected':'') + '>⏳ Bekleniyor</option>'
+      + '<option value="✅ Cevaplandı"' + (d.cevap&&d.cevap.includes('Cevap')?' selected':'') + '>✅ Cevaplandı</option>'
+      + '<option value="⚠️ Yetersiz"'   + (d.cevap&&d.cevap.includes('Yetersiz')?' selected':'') + '>⚠️ Yetersiz</option>'
+      + '<option value="❌ Cevap Yok"'  + (d.cevap&&d.cevap.includes('Yok')?' selected':'') + '>❌ Cevap Yok</option>'
+      + '</select></div>'
+    + '<div class="ebys-gf-field"><span class="ebys-gf-lbl">Cevap Notu</span>'
+      + '<input class="ebys-gf-inp" type="text" id="' + uid + '_cevapNot" value="' + (d.cevapNot||'') + '" placeholder="Kısa not…"></div>'
+    + '</div>'
+    // Kapatma satırı
+    + '<label class="ebys-gf-kapati">'
+      + '<input type="checkbox" id="' + uid + '_kapatiCb" '
+      + (d._sinif==='kapatildi'?'checked ':'')
+      + 'onchange="ebysKapatiToggle(\'' + uid + '\')">'
+      + ' Bu denetimi kapat (Genel Durum = ✅ Kapatıldı)</label>'
+    + '<div id="' + uid + '_kapatiTarihWrap" style="display:' + (d._sinif==='kapatildi'?'flex':'none') + ';align-items:center;gap:8px;">'
+      + '<span class="ebys-gf-lbl">Kapatma Tarihi:</span>'
+      + '<input class="ebys-gf-inp" type="date" id="' + uid + '_kapatiTarih" value="' + ti(d.kapatmaTarih) + '" style="width:160px;"></div>'
+    // Uygunsuzluk giderme
+    + '<div class="ug-bolum">'
+      + '<div class="ug-baslik">📋 Uygunsuzluk Giderme Detayı</div>'
+      + '<button class="ug-yukle-btn" id="' + uid + '_ugYukle" '
+        + 'onclick="ugMaddeleriYukle(\'' + uid + '\',\'' + okulEnc + '\',\'' + tarihEnc + '\')">'
+        + 'Maddeleri Yükle (' + (d.uyg||0) + ' uygunsuzluk)</button>'
+      + '<div id="' + uid + '_ugListe" class="ug-liste"></div>'
+      + '<div id="' + uid + '_ugOzet" class="ug-ozet"></div>'
+    + '</div>'
+    // Raporu yenile
+    + '<div style="margin:10px 0 4px;display:flex;align-items:center;gap:8px;">'
+      + '<button class="btn-rapor-yenile" id="' + uid + '_raporBtn" '
+        + 'onclick="raporYenileBaslat(\'' + uid + '\',\'' + okulEnc + '\',\'' + tarihEnc + '\')">'
+        + '<span class="rapor-spin" id="' + uid + '_raporSpin"></span>🔄 Raporu Yenile</button>'
+    + '</div>'
+    // Kaydet/İptal
+    + '<div class="ebys-gf-btns">'
+      + '<button class="ebys-gf-iptal" onclick="ebysDrawerKapat()">İptal</button>'
+      + '<button class="ebys-gf-kaydet" id="' + uid + '_kaydetBtn" '
+        + 'onclick="ebysGuncelleKaydet(\'' + uid + '\',\'' + okulEnc + '\',\'' + tarihEnc + '\')">'
+        + '<span class="ebys-gf-spin" id="' + uid + '_spin"></span>💾 Kaydet</button>'
+    + '</div>';
+}
 
 // ════════════════════════════════════════════════
 // EBYS PANEL TOGGLE FONKSİYONLARI
