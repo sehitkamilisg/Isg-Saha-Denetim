@@ -1232,9 +1232,15 @@ html,body{overflow-x:hidden;-webkit-overflow-scrolling:touch}
         </div>
       </div>
 
-      <!-- EBYS detay listesi — akordiyon (varsayılan kapalı) -->
+      <!-- EBYS detay listesi — ilk 5 görünür -->
       <div id="ebysDetay" class="ebys-detay-wrap">
         <div id="ebysListe" style="padding-top:4px;"></div>
+        <div class="top5-footer" id="ebysFooter" style="display:none">
+          <span class="top5-meta" id="ebysTop5Meta"></span>
+          <button class="top5-btn" id="ebysTumBtn" onclick="ebysDrawerTumunuGoster()">
+            Tümünü Gör <span class="top5-btn-ico">▲</span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -1612,6 +1618,33 @@ html,body{overflow-x:hidden;-webkit-overflow-scrolling:touch}
       <button onclick="myonSheetteAc()" style="background:rgba(56,189,248,.1);border:1px solid rgba(56,189,248,.25);color:var(--teal);padding:6px 14px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:Arial,sans-serif;">
         📊 Sheets'te Aç
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ EBYS TAM LİSTE DRAWER ═══ -->
+<div class="drawer-overlay" id="ebysTumDrawerBg" onclick="ebysTumDrawerKapat(event)">
+  <div class="drawer-panel">
+    <div class="drawer-handle" onclick="document.getElementById('ebysTumDrawerBg').classList.remove('open');document.body.style.overflow=''"></div>
+    <div class="drawer-head">
+      <div class="drawer-title" id="ebysTumDrawerBaslik">📬 EBYS Takip — Tüm Denetimler</div>
+      <button class="drawer-kapat" onclick="document.getElementById('ebysTumDrawerBg').classList.remove('open');document.body.style.overflow=''">✕</button>
+    </div>
+    <div class="drawer-search-row" style="display:flex;gap:8px;align-items:center;">
+      <input class="drawer-search" id="ebysTumArama" placeholder="🔍 Okul ara…" oninput="ebysTumFiltrele()" style="flex:1">
+      <select id="ebysTumKatFilter" onchange="ebysTumFiltrele()"
+        style="padding:7px 10px;border-radius:9px;border:1px solid var(--bdr);background:rgba(0,0,0,.3);color:var(--txt);font-size:12px;font-family:Arial,sans-serif;cursor:pointer;outline:none;">
+        <option value="">Tümü</option>
+        <option value="suredoldu">🔴 Süre Doldu</option>
+        <option value="yazigonderilmedi">✉️ Yazı Yok</option>
+        <option value="cevapbekleniyor">🔄 Cevap Bekliyor</option>
+        <option value="kapatildi">✅ Kapatıldı</option>
+      </select>
+    </div>
+    <div class="drawer-body" id="ebysTumListeBody"></div>
+    <div class="resize-bar"></div>
+    <div class="drawer-footer">
+      <span id="ebysTumSayac" style="font-size:11px;color:var(--mut2)"></span>
     </div>
   </div>
 </div>
@@ -2175,7 +2208,72 @@ globalThis.ebysListeFiltrele = function(filtre) {
     + '</div>';
   }).join('');
 
-  liste.innerHTML = baslik + satirlar;
+  // İlk 5 göster, geri kalanı footer'la gizle
+  const ilk5     = sirali.slice(0, 5);
+  const gizliSay = sirali.length - 5;
+
+  // Sadece ilk 5'in HTML'ini üret
+  const ilk5Satirlar = ilk5.map(function(d, idx) {
+    const cevapInfo = d.cevapTarih ? 'Son: ' + d.cevapTarih : (d.ebysTarih ? 'EBYS: ' + d.ebysTarih : '');
+    const giderilen = d.giderilen || 0;
+    const uyg       = d.uyg || 0;
+    const ilerleme  = uyg > 0 ? Math.round(giderilen / uyg * 100) : 0;
+    const bg = d._sinif === 'kapatildi'       ? 'rgba(16,185,129,.05)'
+             : d._sinif === 'suredoldu'        ? 'rgba(220,38,38,.06)'
+             : d._sinif === 'yazigonderilmedi' ? 'rgba(245,158,11,.04)'
+             : 'rgba(59,130,246,.03)';
+    const uid      = 'ebys_' + idx;
+    const okulEnc  = encodeURIComponent(d.okul);
+    const tarihEnc = encodeURIComponent(d.tarih || '');
+    const raporKismi = d.raporUrl
+      ? '<a href="' + d.raporUrl + '" target="_blank" style="color:var(--teal);font-size:10.5px;white-space:nowrap">📄 Rapor</a>' : '';
+    const arsivKismi = (d.arsivler && d.arsivler.length > 0)
+      ? '<button onclick="arsivModalAc(event,\'' + encodeURIComponent(JSON.stringify(d.arsivler)) + '\')" '
+        + 'style="background:rgba(148,163,184,.1);border:1px solid rgba(148,163,184,.15);color:var(--mut2);'
+        + 'font-size:10px;padding:2px 6px;border-radius:4px;cursor:pointer;font-family:Arial,sans-serif;">'
+        + '🗂️ ' + d.arsivler.length + '</button>' : '';
+    const ilerlemeBant = uyg > 0
+      ? '<div style="display:inline-flex;align-items:center;gap:3px;margin-left:5px">'
+        + '<div style="width:44px;height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden">'
+        + '<div style="width:' + ilerleme + '%;height:100%;background:#10b981;border-radius:2px"></div></div>'
+        + '<span style="font-size:10px;color:var(--mut)">%' + ilerleme + '</span></div>' : '';
+    return '<div class="ebys-satir" style="background:' + bg + '">'
+      + '<div class="ebys-satir-sol">'
+        + '<div class="ebys-okul">' + (d.okul || '–') + '</div>'
+        + '<div class="ebys-tarih">'
+          + (d.tarih || '') + (d.tur ? ' · ' + d.tur : '')
+          + (cevapInfo ? ' · ' + cevapInfo : '')
+          + ilerlemeBant
+        + '</div>'
+      + '</div>'
+      + '<div class="ebys-satir-sag">'
+        + '<span class="ebys-badge ' + d._badgeCls + '">' + d._badge + '</span>'
+        + raporKismi + arsivKismi
+        + '<button onclick="ebysDrawerAc(\'' + uid + '\',\'' + okulEnc + '\',\'' + tarihEnc + '\')" '
+          + 'style="background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.28);color:var(--teal);'
+          + 'font-size:11px;font-weight:700;padding:4px 10px;border-radius:7px;cursor:pointer;'
+          + 'font-family:Arial,sans-serif;white-space:nowrap;">✏️ Güncelle</button>'
+      + '</div>'
+    + '</div>';
+  }).join('');
+
+  liste.innerHTML = baslik + ilk5Satirlar;
+
+  // Footer göster/gizle
+  const footer  = document.getElementById('ebysFooter');
+  const metaEl  = document.getElementById('ebysTop5Meta');
+  const tumBtn  = document.getElementById('ebysTumBtn');
+  if (footer) {
+    if (gizliSay > 0) {
+      footer.style.display = 'flex';
+      if (metaEl) metaEl.textContent = ilk5.length + ' / ' + sirali.length + ' gösteriliyor';
+      if (tumBtn) tumBtn.textContent = '+ ' + gizliSay + ' denetim daha  ▲';
+    } else {
+      footer.style.display = sirali.length > 0 ? 'flex' : 'none';
+      if (metaEl) metaEl.textContent = sirali.length + ' denetim';
+      if (tumBtn) tumBtn.textContent = 'Tümünü Gör ▲';
+    }
+  }
 };
 
 // ════════════════════════════════════════════════
@@ -5245,6 +5343,87 @@ globalThis.raporYenileBaslat = async function(uid, okulEnc, tarihEnc) {
   } finally {
     if (spin) { spin.classList.remove('show'); }
   }
+};
+
+// ════════════════════════════════════════════════
+// EBYS TAM LİSTE DRAWER
+// ════════════════════════════════════════════════
+globalThis.ebysDrawerTumunuGoster = function() {
+  var bg = document.getElementById('ebysTumDrawerBg');
+  if (!bg) return;
+  bg.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  document.getElementById('ebysTumArama').value = '';
+  document.getElementById('ebysTumKatFilter').value = '';
+  ebysTumFiltrele();
+};
+
+globalThis.ebysTumDrawerKapat = function(e) {
+  if (!e || e.target === document.getElementById('ebysTumDrawerBg')) {
+    document.getElementById('ebysTumDrawerBg').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+};
+
+globalThis.ebysTumFiltrele = function() {
+  var arama  = (document.getElementById('ebysTumArama')?.value || '').toLowerCase().trim();
+  var sinif  = document.getElementById('ebysTumKatFilter')?.value || '';
+  var liste  = (_ebysVeri || []).filter(function(d) {
+    if (sinif && d._sinif !== sinif) return false;
+    if (arama && !(d.okul||'').toLowerCase().includes(arama)) return false;
+    return true;
+  });
+  var sayacEl = document.getElementById('ebysTumSayac');
+  if (sayacEl) sayacEl.textContent = liste.length + ' denetim';
+  var body = document.getElementById('ebysTumListeBody');
+  if (!body) return;
+  if (!liste.length) {
+    body.innerHTML = '<div style="padding:20px;text-align:center;color:var(--mut);font-size:12px">Kayıt bulunamadı</div>';
+    return;
+  }
+  body.innerHTML = liste.map(function(d, idx) {
+    const cevapInfo = d.cevapTarih ? 'Son: ' + d.cevapTarih : (d.ebysTarih ? 'EBYS: ' + d.ebysTarih : '');
+    const giderilen = d.giderilen || 0;
+    const uyg       = d.uyg || 0;
+    const ilerleme  = uyg > 0 ? Math.round(giderilen / uyg * 100) : 0;
+    const bg = d._sinif === 'kapatildi'       ? 'rgba(16,185,129,.05)'
+             : d._sinif === 'suredoldu'        ? 'rgba(220,38,38,.06)'
+             : d._sinif === 'yazigonderilmedi' ? 'rgba(245,158,11,.04)'
+             : 'rgba(59,130,246,.03)';
+    const uid = 'ebysTum_' + idx;
+    const okulEnc  = encodeURIComponent(d.okul);
+    const tarihEnc = encodeURIComponent(d.tarih || '');
+    const raporKismi = d.raporUrl
+      ? '<a href="' + d.raporUrl + '" target="_blank" style="color:var(--teal);font-size:10.5px;white-space:nowrap">📄 Rapor</a>' : '';
+    const arsivKismi = (d.arsivler && d.arsivler.length > 0)
+      ? '<button onclick="arsivModalAc(event,\'' + encodeURIComponent(JSON.stringify(d.arsivler)) + '\')" '
+        + 'style="background:rgba(148,163,184,.1);border:1px solid rgba(148,163,184,.15);color:var(--mut2);'
+        + 'font-size:10px;padding:2px 6px;border-radius:4px;cursor:pointer;font-family:Arial,sans-serif;">'
+        + '🗂️ ' + d.arsivler.length + '</button>' : '';
+    const ilerlemeBant = uyg > 0
+      ? '<div style="display:inline-flex;align-items:center;gap:3px;margin-left:5px">'
+        + '<div style="width:44px;height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden">'
+        + '<div style="width:' + ilerleme + '%;height:100%;background:#10b981;border-radius:2px"></div></div>'
+        + '<span style="font-size:10px;color:var(--mut)">%' + ilerleme + '</span></div>' : '';
+    return '<div class="ebys-satir" style="background:' + bg + ';margin:0 6px 3px">'
+      + '<div class="ebys-satir-sol">'
+        + '<div class="ebys-okul">' + (d.okul || '–') + '</div>'
+        + '<div class="ebys-tarih">'
+          + (d.tarih || '') + (d.tur ? ' · ' + d.tur : '')
+          + (cevapInfo ? ' · ' + cevapInfo : '')
+          + ilerlemeBant
+        + '</div>'
+      + '</div>'
+      + '<div class="ebys-satir-sag">'
+        + '<span class="ebys-badge ' + d._badgeCls + '">' + d._badge + '</span>'
+        + raporKismi + arsivKismi
+        + '<button onclick="ebysDrawerAc(\'' + uid + '\',\'' + okulEnc + '\',\'' + tarihEnc + '\')" '
+          + 'style="background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.28);color:var(--teal);'
+          + 'font-size:11px;font-weight:700;padding:4px 10px;border-radius:7px;cursor:pointer;'
+          + 'font-family:Arial,sans-serif;white-space:nowrap;">✏️ Güncelle</button>'
+      + '</div>'
+    + '</div>';
+  }).join('');
 };
 
 // ════════════════════════════════════════════════
